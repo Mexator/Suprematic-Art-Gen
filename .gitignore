@@ -1,0 +1,6 @@
+__pycache__
+.vscode
+report/report*
+!report/report*.tex
+!input/*
+!output/*
