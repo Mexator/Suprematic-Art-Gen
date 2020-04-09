@@ -6,7 +6,7 @@ import unit
 
 # Set up the randint seed to obtain repeatable results for debug
 seed = rand.randint(a=0,b=10000)
-# seed = 8543
+# seed = 9621
 print("seed: ", seed,"\n")
 rand.seed(seed)
         
@@ -29,6 +29,8 @@ gen = [adam,lilith,rei]
 for i in range(0,1000):
     parents = rand.sample(gen,2)
     children = parents[0].make_children_with(parents[1])
+    for child in children:
+        child.mutate()
     gen += children
 
 best = None

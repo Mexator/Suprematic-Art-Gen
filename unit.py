@@ -1,3 +1,4 @@
+import random as rand
 from skimage import data, io, draw
 from random import randint
 from figures import Figure, FigureType
@@ -32,10 +33,27 @@ class Unit:
         children = []
         for _ in range(0, children_number):
             child = Unit(parent=self)
-            for i in range(0, len(child.figures), 2):
+            for i in range(0, min(len(child.figures),len(other.figures)*2), 2):
                 child.figures[i] = other.figures[int(i/2)]
             children.append(child)
         return children
+
+    def mutate(self):
+        action = randint(1, 3)
+        if action == 1 and len(self.figures)>1:
+            # Remove random figure
+            to_be_removed = rand.choice(self.figures)
+            self.figures.remove(to_be_removed)
+        elif action == 2:
+            # Add random figure
+            # type = rand.choice(list(FigureType))
+            type = FigureType.Circle
+            figure = Figure(type)
+            self.figures.append(figure)
+        elif action == 3:
+            # Change order
+            rand.shuffle(self.figures)
+        # TODO: change color, change position
 
     def fitness(self):
         # Less figures - the better
