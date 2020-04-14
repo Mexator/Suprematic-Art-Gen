@@ -10,7 +10,7 @@ class Unit:
     def __init__(self, image=None, parent=None):
         self.age = 0
         if (image is None) and (not (parent is None)):
-            self.image = copy(parent.image)
+            self.image = parent.image
             self.figures = copy(parent.figures)
         elif (parent is None) and (not (image is None)):
             self.figures = []
