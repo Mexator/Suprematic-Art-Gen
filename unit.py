@@ -6,7 +6,9 @@ from copy import copy
 
 
 class Unit:
+    lifecycle = 100
     def __init__(self, image=None, parent=None):
+        self.age = 0
         if (image is None) and (not (parent is None)):
             self.image = copy(parent.image)
             self.figures = copy(parent.figures)
@@ -65,9 +67,11 @@ class Unit:
                 figure_intersection_fitness += self.figures[i].intersects(
                     self.figures[j])
         # Less covers - the better
+        # Last elements cover first ones
         figure_covering_fitness = 0
+        figures = list(reversed(self.figures))
         for i in range(0, len(self.figures)):
             for j in range(i+1, len(self.figures)):
-                figure_covering_fitness -= self.figures[i].covers(
-                    self.figures[j])
+                figure_covering_fitness -= figures[i].covers(
+                    figures[j])
         return figure_number_fitness + figure_intersection_fitness + figure_covering_fitness

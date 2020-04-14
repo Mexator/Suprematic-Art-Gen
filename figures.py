@@ -45,7 +45,9 @@ class Figure:
                 distance = sqrt(
                     (self.center[0]-other.center[0])**2 +
                     (self.center[1]-other.center[1])**2)
-                return distance < max([self.radius, other.radius])
+                R = self.radius
+                r = other.radius
+                return distance + r <= R
 
     def random_circle(self):
         center = [randint(1, self.max_size_x-1) for i in range(0, 2)]

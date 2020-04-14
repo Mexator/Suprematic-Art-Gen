@@ -2,7 +2,7 @@ from skimage import data, io, draw
 import matplotlib.pyplot as plt
 import numpy as np
 import random as rand
-import unit
+from unit import Unit
 
 # Set up the randint seed to obtain repeatable results for debug
 seed = rand.randint(a=0,b=10000)
@@ -13,8 +13,8 @@ rand.seed(seed)
 input_img = io.imread("input/unnamed.png")
 # print(len(input_img[0]))
 
-adam = unit.Unit(image = input_img)
-lilith = unit.Unit(image = input_img)
+adam = Unit(image = input_img)
+lilith = Unit(image = input_img)
 rei = adam.make_children_with(lilith)[0]
 
 img1 = adam.draw_unit_on(input_img)
@@ -32,16 +32,20 @@ for i in range(0,1000):
     for child in children:
         child.mutate()
     gen += children
+    for item in gen:
+        if(item.age > Unit.lifecycle):
+            gen.remove(item)
+        item.age+=1
 
 best = None
 best_fitness = 0
 for item in gen:
-    print(item.fitness())
-    if (best is None) or (item.fitness() < best_fitness):
+    if (best is None) or (item.fitness() > best_fitness):
         best = item
         best_fitness = item.fitness()
 
 img4 = best.draw_unit_on(input_img)
+print(best_fitness)
 
 plt.subplot(2,2,1)
 plt.imshow(img1)
