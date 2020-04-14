@@ -1,7 +1,7 @@
 import random as rand
 from skimage import data, io, draw
 from random import randint
-from figures import Figure, FigureType
+from figures import Figure, FigureType, Circle
 from copy import copy
 
 
@@ -22,13 +22,13 @@ class Unit:
 
     def generate_figures(self):
         for _ in range(0, 10):
-            fig = Figure(FigureType.Circle)
+            fig = Circle()
             self.figures.append(fig)
 
     def draw_unit_on(self, canvas):
         canvas = canvas.copy()
         for figure in self.figures:
-            canvas[figure.draw()] = figure.color
+            canvas[figure.draw()] = figure.data.color
         return canvas
 
     def make_children_with(self, other, children_number=1):
@@ -49,8 +49,7 @@ class Unit:
         elif action == 2:
             # Add random figure
             # type = rand.choice(list(FigureType))
-            type = FigureType.Circle
-            figure = Figure(type)
+            figure = Circle()
             self.figures.append(figure)
         elif action == 3:
             # Change order
