@@ -1,4 +1,4 @@
-from copy import copy
+from copy import copy, deepcopy
 import random as rand
 from random import randint
 
@@ -8,7 +8,7 @@ import figures
 class Unit:
     def __init__(self, image=None, parent=None):
         self.age = 0
-        
+
         if image is None and parent is not None:
             self.image = parent.image
             self.figures = copy(parent.figures)
@@ -21,7 +21,7 @@ class Unit:
             raise Exception('At least one of \'image\' or \'parent\' '
                             'parameter should be initialized')
         self.fitness_val = self.fitness()
-        self.lifecycle = max(10,self.fitness_val)
+        self.lifecycle = max(10, self.fitness_val)
 
     def generate_figures(self):
         for _ in range(0, 10):
@@ -40,6 +40,8 @@ class Unit:
             child = Unit(parent=self)
             for i in range(0, min(len(child.figures), len(other.figures)*2), 2):
                 child.figures[i] = other.figures[int(i/2)]
+            child.fitness_val = child.fitness()
+            child.lifecycle = max(10, child.fitness_val)
             children.append(child)
         return children
 
@@ -68,11 +70,13 @@ class Unit:
             for j in range(i+1, len(self.figures)):
                 figure_intersection_fitness += self.figures[i].intersects(
                     self.figures[j])
+
         # Less covers - the better
         # Last elements cover first ones
         figure_covering_fitness = 0
-        for i in range(0, len(self.figures)):
-            for j in range(i+1, len(self.figures)):
-                figure_covering_fitness -= self.figures[-i].covers(
-                    self.figures[-j])
+        for i in range(len(self.figures)-1, 0, -1):
+            for j in range(i-1, 0, -1):
+                figure_covering_fitness -= self.figures[i].covers(
+                    self.figures[j])
+
         return figure_number_fitness + figure_intersection_fitness + figure_covering_fitness
