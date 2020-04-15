@@ -1,7 +1,7 @@
 from random import randint
 from skimage import draw
 from enum import Enum
-from numpy import sqrt
+from math import sqrt, sin, cos, radians
 import copy
 
 class FigureType(Enum):
@@ -15,7 +15,7 @@ class Figure:
     max_size = [512,512]
     figure_type = None
 
-    def __init__(self, random=True, data=None):
+    def __init__(self, is_random=True, data=None):
         raise NotImplementedError('')
 
     def draw(self):
@@ -52,7 +52,7 @@ class Circle(Figure):
     def __init__(self, is_random=True, data:CircleData=None):
         if is_random:
             color = (randint(0, 255), randint(0, 255), randint(0, 255))
-            center, radius = self.random_circle()
+            center, radius = Circle.random_circle()
             self.data = Circle.CircleData(radius,center,color)
         elif not(data is None):
             self.data = copy.deepcopy(data)
@@ -82,13 +82,50 @@ class Circle(Figure):
             R = self.data.radius
             r = other.data.radius
             return distance + r <= R
-
-    def random_circle(self):
+    @staticmethod
+    def random_circle():
         center = [randint(1, Figure.max_size[i]-1) for i in range(0, 2)]
         tmp = [512-item for item in center]
         max_rad = min(center + tmp)
         if max_rad < 10:
-            center, radius = self.random_circle()
+            center, radius = Circle.random_circle()
         else:
             radius = randint(10, max_rad)
         return [center, radius]
+
+class Rectangle(Figure):
+    figure_type = FigureType.Rectangle
+
+    # Necessary data to create rectangle: 
+    # circumscribed circle and two angles
+    class RectangleData(Circle.CircleData):
+        angles:(float,float)
+        def __init__(self, r:int,c:[int,int],col:(int,int,int), thetas:(float,float)):
+            super().__init__(r,c,col)
+            self.angles = thetas
+
+    def __init__(self, is_random=True,data:RectangleData=None):
+        if is_random:
+            color = (randint(0, 255), randint(0, 255), randint(0, 255))
+            center, radius = Circle.random_circle()
+            angle1 = randint(0,360)
+            angle2 = randint(0,360)
+            self.data = Rectangle.RectangleData(radius,center,color,(angle1,angle2))
+        elif not(data is None):
+            self.data = copy.deepcopy(data)
+        else:
+            raise Exception('''You should either provide both 
+            random as false, and data or neither of them''')
+
+    def draw(self):
+        vertices_x=[]
+        vertices_y=[] 
+        data = self.data
+        center = data.center
+        vertices_x += [center[0] + data.radius*sin(radians(i)) for i in data.angles]
+        vertices_x += [center[0] + data.radius*sin(radians(i+180)) for i in data.angles]
+        
+        vertices_y += [center[1] + data.radius*cos(radians(i)) for i in data.angles]
+        vertices_y += [center[1] + data.radius*cos(radians(i+180)) for i in data.angles]
+
+        return draw.polygon(vertices_y,vertices_x)
