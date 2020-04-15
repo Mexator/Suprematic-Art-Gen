@@ -58,8 +58,34 @@ class Figure:
         if Figure.distance(closest.reshape(2,),circle.center)<circle.radius:
             return True
         return False
+    @staticmethod
+    def triangle_area(p1:[int,int],p2:[int,int],p3:[int,int]):
+        char_mat = np.array([
+            [*p1,1],
+            [*p2,1],
+            [*p3,1]
+        ])
+        return 0.5 * np.linalg.det(char_mat)
+    def inside(self,point:[int,int]):
+        vertices = self.data.vertices()
+        prev = vertices[0]
+        area_external_pt = 0
+        for i in range(1,len(vertices)):
+            cur = vertices[i]
+            area_external_pt += Figure.triangle_area(prev,cur,point)
+            prev = cur
+        area_external_pt += Figure.triangle_area(vertices[0],vertices[-1],point)
         
+        area_internal_pt = 0
+        internal_pt = vertices[0]
+        prev = vertices[0]
+        for i in range(1,len(vertices)):
+            cur = vertices[i]
+            area_internal_pt += Figure.triangle_area(prev,cur,internal_pt)
+            prev = cur
+        area_internal_pt += Figure.triangle_area(vertices[0],vertices[-1],internal_pt)
 
+        return (area_external_pt - area_internal_pt) < 1e-5
 
 class Circle(Figure):
     figure_type = FigureType.Circle
@@ -84,6 +110,9 @@ class Circle(Figure):
         else:
             raise Exception('''You should either provide both 
             random as false, and data or neither of them''')
+    
+    def inside(self,point:[int,int]):
+        return Figure.distance(self.data.center, point)
 
     def draw(self):
         return draw.circle(*self.data.center, self.data.radius)
@@ -115,6 +144,11 @@ class Circle(Figure):
             R = self.data.radius
             r = other.data.radius
             return dist + r <= R
+        if(other.figure_type == FigureType.Rectangle):
+            for vertice in other.data.vertices():
+                if(not(self.inside(vertice))):
+                    return False
+            return True
 
     @staticmethod
     def random_circle():
@@ -178,17 +212,35 @@ class Rectangle(Figure):
     def intersects(self, other:Figure):
         if(other.figure_type == FigureType.Circle):
             vertices = self.data.vertices()
-            for vertice in vertices:
-                if Figure.distance(vertice,other.data.center):
-                    return True
-            prev = vertices[0]
             for i in range(1,len(vertices)):
                 cur = vertices[i]
                 if(Figure.seg_circle_intersection(other.data,[prev,cur])):
                     return True
                 prev = cur
-            if(Figure.seg_circle_intersection(other.data,[vertices[-1],vertices[0]])):
+            if(Figure.seg_circle_intersection(
+                other.data,[vertices[-1],vertices[0]])):
                 return True
             else:
                 return False
-            
+
+        if(other.figure_type == FigureType.Rectangle):
+            vertices = other.data.vertices()
+            for vertice in vertices:
+                if(self.inside(vertice)):
+                    return True
+            return False
+    
+    def covers(self,other:Figure):
+        if(other.figure_type == FigureType.Circle):
+            if self.inside(other.center):
+                for vertice in self.data.vertices():
+                    if(other.inside(vertice)):
+                        return False
+                return True
+            return False
+        if(other.figure_type == FigureType.Rectangle):
+            for vertice in other.data.vertices():
+                if(not self.inside(vertice)):
+                    return False
+            return True 
+
