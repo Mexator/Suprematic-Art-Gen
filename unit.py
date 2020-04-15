@@ -62,21 +62,22 @@ class Unit:
         # TODO: change color, change position
 
     def fitness(self):
+        # Delete invisible figures
+        to_be_removed = []
+        for i in range(len(self.figures)-1, 0, -1):
+            for j in range(i-1, 0, -1):
+                if(self.figures[i].covers(self.figures[j])):
+                    to_be_removed.append(j)
+        for item in to_be_removed:
+            del self.figures[item]
+        
         # Less figures - the better
         figure_number_fitness = 1/len(self.figures)
         # More intersections - the better
         figure_intersection_fitness = 0
         for i in range(0, len(self.figures)):
             for j in range(i+1, len(self.figures)):
-                figure_intersection_fitness += self.figures[i].intersects(
+                    figure_intersection_fitness += self.figures[i].intersects(
                     self.figures[j])
 
-        # Less covers - the better
-        # Last elements cover first ones
-        figure_covering_fitness = 0
-        for i in range(len(self.figures)-1, 0, -1):
-            for j in range(i-1, 0, -1):
-                figure_covering_fitness -= self.figures[i].covers(
-                    self.figures[j])
-
-        return figure_number_fitness + figure_intersection_fitness + figure_covering_fitness
+        return figure_number_fitness + figure_intersection_fitness

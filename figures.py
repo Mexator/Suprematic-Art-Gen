@@ -276,14 +276,16 @@ class Rectangle(Figure):
     def covers(self, other: Figure):
         if other.figure_type == FigureType.Circle:
             if self.inside(other.data.center):
-                for vertice in self.data.vertices():
-                    if other.inside(vertice):
+                vertices = self.data.vertices()
+                for i in range(0, len(vertices)):
+                    if other.inside(vertices[:, i]):
                         return False
                 return True
             return False
         if other.figure_type == FigureType.Rectangle:
-            for vertice in other.data.vertices():
-                if not self.inside(vertice):
+            vertices = other.data.vertices()
+            for i in range(0, len(vertices)):
+                if not self.inside(vertices[:, i]):
                     return False
             return True
         return False
