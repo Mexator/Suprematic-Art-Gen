@@ -1,24 +1,25 @@
 from copy import copy
 import random as rand
 from random import randint
-from copy import copy
+
 import figures
 
-from figures import Circle
 
 class Unit:
     def __init__(self, image=None, parent=None):
         self.age = 0
+        
         if image is None and parent is not None:
             self.image = parent.image
             self.figures = copy(parent.figures)
         elif (parent is None) and image is not None:
+
             self.figures = []
             self.image = image
             self.generate_figures()
         else:
-            raise Exception('''At least one of \'image\' or \'parent\' 
-                parameter should be initialized''')
+            raise Exception('At least one of \'image\' or \'parent\' '
+                            'parameter should be initialized')
         self.fitness_val = self.fitness()
         self.lifecycle = max(10,self.fitness_val)
 

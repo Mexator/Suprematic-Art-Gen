@@ -4,4 +4,5 @@ report/report*
 !report/report*.tex
 !input/*
 !output/*
+.venv
 tst.py
