@@ -2,7 +2,7 @@ from copy import copy
 import random as rand
 from random import randint
 
-from figures import Circle
+import figures
 
 class Unit:
     lifecycle = 1000
@@ -11,7 +11,7 @@ class Unit:
         if image is None and parent:
             self.image = parent.image
             self.figures = copy(parent.figures)
-        elif (parent is None) and image:
+        elif parent is None and not image is None:
             self.figures = []
             self.image = image
             self.generate_figures()
@@ -21,7 +21,7 @@ class Unit:
 
     def generate_figures(self):
         for _ in range(0, 10):
-            fig = Circle()
+            fig = figures.random_figure()
             self.figures.append(fig)
 
     def draw_unit_on(self, canvas):
@@ -48,7 +48,7 @@ class Unit:
         elif action == 2:
             # Add random figure
             # type = rand.choice(list(FigureType))
-            figure = Circle()
+            figure = figures.random_figure()
             self.figures.append(figure)
         elif action == 3:
             # Change order
