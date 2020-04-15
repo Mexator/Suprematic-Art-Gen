@@ -46,7 +46,7 @@ for i in range(0, 1000):
         child.mutate()
     gen += children
     for item in gen:
-        if item.age > Unit.lifecycle:
+        if item.age > item.lifecycle:
             gen.remove(item)
         item.age += 1
 
