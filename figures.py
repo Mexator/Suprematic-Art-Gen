@@ -1,8 +1,8 @@
-from random import randint
-from skimage import draw
-from enum import Enum
-from math import sqrt, sin, cos, radians
 import copy
+from random import randint
+from enum import Enum
+from skimage import draw
+from math import sqrt, sin, cos, radians
 import numpy as np
 import random as rand
 

@@ -27,7 +27,18 @@ print(rei.fitness())
 
 gen = [adam,lilith,rei]
 for i in range(0,1000):
-    parents = rand.sample(gen,2)
+    if(len(gen)<2):
+        break
+    sample = rand.sample(gen,min(10,len(gen)-1))
+    best1 = sample[0]
+    best2 = sample[1]
+    for i in range(2,len(sample)):
+        if (sample[i].fitness_val > best1.fitness_val):
+            best1 = sample[i]
+        elif (sample[i].fitness_val > best2.fitness_val):
+            best2 = sample[i]
+    parents = [best1,best2]
+
     children = parents[0].make_children_with(parents[1])
     for child in children:
         child.mutate()

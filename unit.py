@@ -1,24 +1,26 @@
+from copy import copy
 import random as rand
-from skimage import data, io, draw
 from random import randint
 from copy import copy
 import figures
 
+from figures import Circle
 
 class Unit:
-    lifecycle = 1000
     def __init__(self, image=None, parent=None):
         self.age = 0
-        if (image is None) and (not (parent is None)):
+        if image is None and parent is not None:
             self.image = parent.image
             self.figures = copy(parent.figures)
-        elif (parent is None) and (not (image is None)):
+        elif (parent is None) and image is not None:
             self.figures = []
             self.image = image
             self.generate_figures()
         else:
             raise Exception('''At least one of \'image\' or \'parent\' 
                 parameter should be initialized''')
+        self.fitness_val = self.fitness()
+        self.lifecycle = max(10,self.fitness_val)
 
     def generate_figures(self):
         for _ in range(0, 10):
@@ -35,14 +37,14 @@ class Unit:
         children = []
         for _ in range(0, children_number):
             child = Unit(parent=self)
-            for i in range(0, min(len(child.figures),len(other.figures)*2), 2):
+            for i in range(0, min(len(child.figures), len(other.figures)*2), 2):
                 child.figures[i] = other.figures[int(i/2)]
             children.append(child)
         return children
 
     def mutate(self):
         action = randint(1, 3)
-        if action == 1 and len(self.figures)>1:
+        if action == 1 and len(self.figures) > 1:
             # Remove random figure
             to_be_removed = rand.choice(self.figures)
             self.figures.remove(to_be_removed)
