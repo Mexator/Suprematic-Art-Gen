@@ -4,19 +4,27 @@ from enum import Enum
 from math import sqrt, sin, cos, radians
 import copy
 import numpy as np
+import random as rand
 
 class FigureType(Enum):
     Circle = 1
     Rectangle = 2
-    Triangle = 3
-    Cross = 4
+    # Triangle = 3
+    # Cross = 4
 
+def random_figure():
+    type = rand.choice(list(FigureType))
+    if type == FigureType.Circle:
+        return Circle()
+    if type == FigureType.Rectangle:
+        return Rectangle()
 
 class Figure:
     max_size = [512,512]
     figure_type = None
 
     def __init__(self, is_random=True, data=None):
+        self.data = None
         raise NotImplementedError('')
 
     def draw(self):
@@ -48,6 +56,8 @@ class Figure:
         rel_pos_vector = np.array([[circle.center[i]-segment[0][i] for i in range(0,2)]])
         seg_unit = segment_vector*1/np.linalg.norm(segment_vector)
         proj_vector_len = rel_pos_vector.dot(np.transpose(seg_unit))
+        if(np.linalg.norm(segment_vector) == 0):
+            f=3
         if proj_vector_len < 0:
             closest = segment[0]
         elif proj_vector_len > np.linalg.norm(segment_vector):
@@ -61,29 +71,29 @@ class Figure:
     @staticmethod
     def triangle_area(p1:[int,int],p2:[int,int],p3:[int,int]):
         char_mat = np.array([
-            [*p1,1],
-            [*p2,1],
-            [*p3,1]
+            [p1[0],p1[1],1],
+            [p2[0],p2[1],1],
+            [p3[0],p3[1],1]
         ])
-        return 0.5 * np.linalg.det(char_mat)
+        return abs(0.5 * np.linalg.det(char_mat))
     def inside(self,point:[int,int]):
         vertices = self.data.vertices()
-        prev = vertices[0]
+        prev = vertices[:,0]
         area_external_pt = 0
         for i in range(1,len(vertices)):
-            cur = vertices[i]
+            cur = vertices[:,i]
             area_external_pt += Figure.triangle_area(prev,cur,point)
             prev = cur
-        area_external_pt += Figure.triangle_area(vertices[0],vertices[-1],point)
+        area_external_pt += Figure.triangle_area(vertices[:,0],vertices[:,-1],point)
         
         area_internal_pt = 0
-        internal_pt = vertices[0]
-        prev = vertices[0]
+        internal_pt = vertices[:,0]
+        prev = vertices[:,0]
         for i in range(1,len(vertices)):
-            cur = vertices[i]
+            cur = vertices[:,i]
             area_internal_pt += Figure.triangle_area(prev,cur,internal_pt)
             prev = cur
-        area_internal_pt += Figure.triangle_area(vertices[0],vertices[-1],internal_pt)
+        area_internal_pt += Figure.triangle_area(vertices[:,0],vertices[:,-1],internal_pt)
 
         return (area_external_pt - area_internal_pt) < 1e-5
 
@@ -180,7 +190,7 @@ class Rectangle(Figure):
 
             vertices_y += [center[1] + self.radius*cos(radians(i)) for i in self.angles]
             vertices_y += [center[1] + self.radius*cos(radians(i+180)) for i in self.angles]
-            return [vertices_x,vertices_y]
+            return np.array([vertices_x,vertices_y])
 
     def __init__(self, is_random=True,data:RectangleData=None):
         if is_random:
@@ -188,6 +198,8 @@ class Rectangle(Figure):
             center, radius = Circle.random_circle()
             angle1 = randint(0,360)
             angle2 = randint(0,360)
+            if abs(angle1 % 180 - angle2 % 180) < 30:
+                angle2 = angle1 + 30
             self.data = Rectangle.RectangleData(radius,center,color,(angle1,angle2))
         elif not(data is None):
             self.data = copy.deepcopy(data)
@@ -212,13 +224,14 @@ class Rectangle(Figure):
     def intersects(self, other:Figure):
         if(other.figure_type == FigureType.Circle):
             vertices = self.data.vertices()
+            prev = vertices[:,0]
             for i in range(1,len(vertices)):
-                cur = vertices[i]
+                cur = vertices[:,i]
                 if(Figure.seg_circle_intersection(other.data,[prev,cur])):
                     return True
                 prev = cur
             if(Figure.seg_circle_intersection(
-                other.data,[vertices[-1],vertices[0]])):
+                other.data,[vertices[:,-1],vertices[:,0]])):
                 return True
             else:
                 return False
@@ -232,7 +245,7 @@ class Rectangle(Figure):
     
     def covers(self,other:Figure):
         if(other.figure_type == FigureType.Circle):
-            if self.inside(other.center):
+            if self.inside(other.data.center):
                 for vertice in self.data.vertices():
                     if(other.inside(vertice)):
                         return False
