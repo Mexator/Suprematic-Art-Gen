@@ -180,14 +180,14 @@ class Circle(Figure):
             return True
 
     @staticmethod
-    def random_circle():
+    def random_circle(min_rad=10):
         center = [randint(1, Figure.max_size[i] - 1) for i in range(0, 2)]
         tmp = [512 - item for item in center]
         max_rad = min(center + tmp)
-        if max_rad < 10:
+        if max_rad < min_rad:
             center, radius = Circle.random_circle()
         else:
-            radius = randint(10, max_rad)
+            radius = randint(min_rad, max_rad)
         return [center, radius]
 
 
@@ -221,7 +221,7 @@ class Rectangle(Figure):
     def __init__(self, is_random=True, data: RectangleData = None):
         if is_random:
             color = Figure.random_color()
-            center, radius = Circle.random_circle()
+            center, radius = Circle.random_circle(min_rad=30)
             angle1 = randint(0, 360)
             angle2 = randint(0, 360)
             if abs(angle1 % 180 - angle2 % 180) < 30:

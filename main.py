@@ -29,7 +29,7 @@ print(lilith.fitness())
 print(rei.fitness())
 
 gen = [adam, lilith, rei]
-for i in range(0, 100):
+for i in range(0, 1000):
     if(len(gen) < 2):
         break
     sample = rand.sample(gen, min(10, len(gen)-1))
