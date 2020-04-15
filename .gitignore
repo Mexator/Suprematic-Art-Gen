@@ -4,3 +4,4 @@ report/report*
 !report/report*.tex
 !input/*
 !output/*
+tst.py
