@@ -7,7 +7,6 @@ import figures
 
 class Unit:
     def __init__(self, image=None, parent=None):
-        self.age = 0
 
         if image is None and parent is not None:
             self.image = parent.image
@@ -21,7 +20,6 @@ class Unit:
             raise Exception('At least one of \'image\' or \'parent\' '
                             'parameter should be initialized')
         self.fitness_val = self.fitness()
-        self.lifecycle = max(10, self.fitness_val)
 
     def generate_figures(self):
         for _ in range(0, 10):
@@ -67,9 +65,9 @@ class Unit:
         for i in range(len(self.figures)-1, 0, -1):
             for j in range(i-1, 0, -1):
                 if(self.figures[i].covers(self.figures[j])):
-                    to_be_removed.append(j)
-        for item in to_be_removed:
-            del self.figures[item]
+                    to_be_removed.append(self.figures[j])
+        for item in set(to_be_removed):
+            self.figures.remove(item)
         
         # Less figures - the better
         figure_number_fitness = 1/len(self.figures)

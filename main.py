@@ -8,7 +8,7 @@ import numpy as np
 
 # Set up the randint seed to obtain repeatable results for debug
 seed = rand.randint(a=0, b=10000)
-# seed = 479
+
 print("seed: ", seed, "\n")
 rand.seed(seed)
 
@@ -46,10 +46,6 @@ for i in range(0, 1000):
     for child in children:
         child.mutate()
     gen += children
-    for item in gen:
-        if item.age > item.lifecycle:
-            gen.remove(item)
-        item.age += 1
 
 best = None
 best_fitness = 0
