@@ -1,6 +1,8 @@
 from copy import copy
 import random as rand
 from random import randint
+from copy import copy
+import figures
 
 from figures import Circle
 
@@ -21,7 +23,7 @@ class Unit:
 
     def generate_figures(self):
         for _ in range(0, 10):
-            fig = Circle()
+            fig = figures.random_figure()
             self.figures.append(fig)
 
     def draw_unit_on(self, canvas):
@@ -48,7 +50,7 @@ class Unit:
         elif action == 2:
             # Add random figure
             # type = rand.choice(list(FigureType))
-            figure = Circle()
+            figure = figures.random_figure()
             self.figures.append(figure)
         elif action == 3:
             # Change order
