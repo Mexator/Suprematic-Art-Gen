@@ -36,9 +36,10 @@ class Figure:
 
     @staticmethod
     def distance(point1: [int, int], point2: [int, int]):
-        return sqrt(
-            (point1[0] - point2[0]) ** 2 +
-            (point1[1] - point2[1]) ** 2)
+        p1 = np.array(point1)
+        p2 = np.array(point2)
+        return np.linalg.norm(p1-p2)
+
 
     @staticmethod
     def seg_circle_intersection(circle, segment: [[int, int], [int, int]]):
@@ -152,8 +153,9 @@ class Circle(Figure):
             r = other.data.radius
             return dist + r <= R
         if other.figure_type == FigureType.Rectangle:
-            for vertice in other.data.vertices():
-                if not self.inside(vertice):
+            vertices = other.data.vertices()
+            for i in range(0, len(vertices[0])):
+                if not self.inside(vertices[:, i]):
                     return False
             return True
 
