@@ -7,16 +7,11 @@ import figures
 
 class Unit:
     def __init__(self, parent=None):
-
         if parent is not None:
             self.figures = copy(parent.figures)
         else:
             self.figures = []
-            self.image = image
             self.generate_figures()
-        else:
-            raise Exception('At least one of \'image\' or \'parent\' '
-                            'parameter should be initialized')
         self.fitness_val = self.fitness()
 
     def generate_figures(self):
@@ -37,7 +32,6 @@ class Unit:
             for i in range(0, min(len(child.figures), len(other.figures)*2), 2):
                 child.figures[i] = other.figures[int(i/2)]
             child.fitness_val = child.fitness()
-            child.lifecycle = max(10, child.fitness_val)
             children.append(child)
         return children
 
@@ -62,18 +56,18 @@ class Unit:
         to_be_removed = []
         for i in range(len(self.figures)-1, 0, -1):
             for j in range(i-1, 0, -1):
-                if(self.figures[i].covers(self.figures[j])):
+                if self.figures[i].covers(self.figures[j]):
                     to_be_removed.append(self.figures[j])
         for item in set(to_be_removed):
             self.figures.remove(item)
-        
+
         # Less figures - the better
         figure_number_fitness = 1/len(self.figures)
         # More intersections - the better
         figure_intersection_fitness = 0
         for i in range(0, len(self.figures)):
             for j in range(i+1, len(self.figures)):
-                    figure_intersection_fitness += self.figures[i].intersects(
+                figure_intersection_fitness += self.figures[i].intersects(
                     self.figures[j])
 
         return figure_number_fitness + figure_intersection_fitness

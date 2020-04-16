@@ -1,58 +1,36 @@
+"""Suprematism figures, and functions that help found fitness"""
 import copy
+import random as rand
 from random import randint
 from enum import Enum
-from skimage import draw
 from math import sqrt, sin, cos, radians
 
-import numpy as np
-import random as rand
-
 from skimage import draw
 import numpy as np
 
-
 class FigureType(Enum):
+    """Suprematism figure types"""
     Circle = 1
     Rectangle = 2
     # Triangle = 3
     # Cross = 4
 
-
 def random_figure():
+    """Returns random  suprematism figure"""
     _type = rand.choice(list(FigureType))
     if _type == FigureType.Circle:
         return Circle()
     if _type == FigureType.Rectangle:
         return Rectangle()
+    return None
 
 
 class Figure:
+    """Base class for figures"""
     max_size = [512, 512]
     figure_type = None
 
-    def __init__(self, is_random=True, data=None):
-        self.data = None
-        raise NotImplementedError('')
-
-    def draw(self):
-        raise NotImplementedError('')
-
-    def translate(self, delta: (int, int)):
-        raise NotImplementedError('')
-
-    def rotate(self, degrees: int):
-        raise NotImplementedError('')
-
-    def change_color(self, color: (int, int, int)):
-        raise NotImplementedError('')
-
-    def intersects(self, other):
-        raise NotImplementedError('')
-
-    def covers(self, other):
-        raise NotImplementedError('')
-
-    @staticmethod 
+    @staticmethod
     def random_color():
         return (randint(50, 255), randint(50, 255), randint(50, 255))
 

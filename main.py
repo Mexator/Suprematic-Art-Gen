@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from unit import Unit
-import numpy as np
 
 # Set up the random seed to obtain repeatable results for debug
 SEED = rand.randint(a=0, b=10000)
@@ -15,22 +14,18 @@ rand.seed(SEED)
 
 input_img = io.imread("input/unnamed.png")
 blank_img = np.zeros((512, 512, 3), dtype=int)
-# print(len(input_img[0]))
 
 adam = Unit()
 lilith = Unit()
 rei = adam.make_children_with(lilith)[0]
 
-img1 = adam.draw_unit_on(blank_img)
-img2 = lilith.draw_unit_on(blank_img)
-img3 = rei.draw_unit_on(blank_img)
-
 print(adam.fitness())
 print(lilith.fitness())
 print(rei.fitness())
 
+ITERATIONS = 1000
 gen = [adam, lilith, rei]
-for i in range(0, 1000):
+for i in range(0, ITERATIONS):
     if(len(gen) < 2):
         break
     sample = rand.sample(gen, min(10, len(gen)-1))
@@ -55,8 +50,12 @@ for item in gen:
         best = item
         best_fitness = item.fitness()
 
-img4 = best.draw_unit_on(blank_img)
 print(best_fitness)
+
+img1 = adam.draw_unit_on(blank_img)
+img2 = lilith.draw_unit_on(blank_img)
+img3 = rei.draw_unit_on(blank_img)
+img4 = best.draw_unit_on(blank_img)
 
 plt.subplot(2, 2, 1)
 plt.imshow(img1)
