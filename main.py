@@ -46,9 +46,9 @@ for i in range(0, ITERATIONS):
 best = None
 best_fitness = 0
 for item in gen:
-    if (best is None) or (item.fitness() > best_fitness):
+    if (best is None) or (item.fitness_val > best_fitness):
         best = item
-        best_fitness = item.fitness()
+        best_fitness = item.fitness_val
 
 print(best_fitness)
 
