@@ -292,8 +292,9 @@ class Rectangle(Figure):
         if other.figure_type == FigureType.Circle:
             if self.inside(other.data.center):
                 vertices = self.data.vertices()
+                # If at least 1 vertice outside- false
                 for i in range(0, len(vertices[0])):
-                    if other.inside(vertices[:, i]):
+                    if not other.inside(vertices[:, i]):
                         return False
                 return True
             return False
