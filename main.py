@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from unit import Unit
+import time
 
 # Set up the random seed to obtain repeatable results for debug
 SEED = rand.randint(a=0, b=10000)
@@ -25,6 +26,10 @@ print(rei.fitness())
 
 ITERATIONS = 1000
 gen = [adam, lilith, rei]
+prev_time = time.time()
+mint=10
+maxt=0
+avgt=0
 for i in range(0, ITERATIONS):
     if(len(gen) < 2):
         break
@@ -42,6 +47,15 @@ for i in range(0, ITERATIONS):
     for child in children:
         child.mutate()
     gen += children
+
+    cur_time = time.time()
+    mint = min([mint, cur_time - prev_time])
+    maxt = max([maxt, cur_time - prev_time])
+    avgt += cur_time - prev_time
+    prev_time = time.time()
+
+avgt /= ITERATIONS
+print("min: ", mint, "max: ", maxt, " avg: ", avgt)
 
 best = None
 best_fitness = 0
