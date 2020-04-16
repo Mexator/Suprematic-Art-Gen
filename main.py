@@ -2,22 +2,23 @@ import random as rand
 
 from skimage import io
 import matplotlib.pyplot as plt
+import numpy as np
 
 from unit import Unit
 import numpy as np
 
-# Set up the randint seed to obtain repeatable results for debug
-seed = rand.randint(a=0, b=10000)
-
-print("seed: ", seed, "\n")
-rand.seed(seed)
+# Set up the random seed to obtain repeatable results for debug
+SEED = rand.randint(a=0, b=10000)
+SEED = 7352
+print("seed: ", SEED, "\n")
+rand.seed(SEED)
 
 input_img = io.imread("input/unnamed.png")
 blank_img = np.zeros((512, 512, 3), dtype=int)
 # print(len(input_img[0]))
 
-adam = Unit(image=blank_img)
-lilith = Unit(image=blank_img)
+adam = Unit()
+lilith = Unit()
 rei = adam.make_children_with(lilith)[0]
 
 img1 = adam.draw_unit_on(blank_img)

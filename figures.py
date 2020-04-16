@@ -261,12 +261,12 @@ class Rectangle(Figure):
 
         if other.figure_type == FigureType.Rectangle:
             vertices = other.data.vertices()
-            for i in range(0, len(vertices)):
+            for i in range(0, len(vertices[0])):
                 if self.inside(vertices[:, i]):
                     return True
 
             vertices = self.data.vertices()
-            for i in range(0, len(vertices)):
+            for i in range(0, len(vertices[0])):
                 if other.inside(vertices[:, i]):
                     return True
             return False
@@ -277,14 +277,14 @@ class Rectangle(Figure):
         if other.figure_type == FigureType.Circle:
             if self.inside(other.data.center):
                 vertices = self.data.vertices()
-                for i in range(0, len(vertices)):
+                for i in range(0, len(vertices[0])):
                     if other.inside(vertices[:, i]):
                         return False
                 return True
             return False
         if other.figure_type == FigureType.Rectangle:
             vertices = other.data.vertices()
-            for i in range(0, len(vertices)):
+            for i in range(0, len(vertices[0])):
                 if not self.inside(vertices[:, i]):
                     return False
             return True

@@ -6,13 +6,11 @@ import figures
 
 
 class Unit:
-    def __init__(self, image=None, parent=None):
+    def __init__(self, parent=None):
 
-        if image is None and parent is not None:
-            self.image = parent.image
+        if parent is not None:
             self.figures = copy(parent.figures)
-        elif (parent is None) and image is not None:
-
+        else:
             self.figures = []
             self.image = image
             self.generate_figures()
