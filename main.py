@@ -52,10 +52,10 @@ for item in gen:
 
 print(best_fitness)
 
-img1 = adam.draw_unit_on(blank_img)
-img2 = lilith.draw_unit_on(blank_img)
-img3 = rei.draw_unit_on(blank_img)
-img4 = best.draw_unit_on(blank_img)
+img1 = adam.draw_unit_on(input_img)
+img2 = lilith.draw_unit_on(input_img)
+img3 = rei.draw_unit_on(input_img)
+img4 = best.draw_unit_on(input_img)
 
 plt.subplot(2, 2, 1)
 plt.imshow(img1)

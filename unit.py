@@ -1,9 +1,12 @@
-from copy import copy, deepcopy
+from copy import copy
 import random as rand
 from random import randint
-
+from skimage import io
+from PIL import ImageChops
+import numpy as np
 import figures
 
+TARGET_IMAGE = io.imread("input/unnamed.png")
 
 class Unit:
     def __init__(self, parent=None):
@@ -70,4 +73,6 @@ class Unit:
                 figure_intersection_fitness += self.figures[i].intersects(
                     self.figures[j])
 
-        return figure_number_fitness + figure_intersection_fitness
+        approx_fitness = np.sum(TARGET_IMAGE - self.draw_unit_on(TARGET_IMAGE))
+
+        return figure_number_fitness + figure_intersection_fitness + approx_fitness
