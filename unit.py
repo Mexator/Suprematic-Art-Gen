@@ -9,7 +9,7 @@ import figures
 TARGET_IMAGE = io.imread("input/unnamed.png")
 INVERSE = np.invert(TARGET_IMAGE)
 PIDIF = np.zeros((512, 512, 3), dtype='uint8')
-MAX_PIX_DIF = 512*512*255*3
+MAX_PIX_DIF = max(np.sum(TARGET_IMAGE-PIDIF), np.sum(INVERSE-PIDIF))
 BLANK_IMAGE = np.zeros((512, 512, 3), dtype=int)
 
 
@@ -88,10 +88,12 @@ class Unit:
         elif action == 4:
             # Change colors
             for fig in ret.figures:
-                fig.color = figures.Figure.random_color()
+                comp = randint(0, 2)
+                add = randint(-1, 1)
+                fig.data.color[comp] += add * 10
         ret.fitness_val = ret.fitness()
         return ret
-        # TODO: change color, change position
+        # TODO: change position
 
     OPTIMAL_NUMBER = 7
 
@@ -128,10 +130,10 @@ class Unit:
             self.figures)*(len(self.figures) - 1)/2
         # According to Wikipedia
         # https://en.wikipedia.org/wiki/Complete_graph
-        if(max_figure_intersection_fitness > 1):
+        if max_figure_intersection_fitness > 1:
             figure_intersection_fitness /= max_figure_intersection_fitness
 
         approx_fitness = 1 - np.sum(
-            TARGET_IMAGE - self.draw_unit_on(BLANK_IMAGE)) / MAX_PIX_DIF
-
+            TARGET_IMAGE - self.draw_unit_on(TARGET_IMAGE)) / MAX_PIX_DIF
+            
         return figure_number_fitness + figure_intersection_fitness + approx_fitness
