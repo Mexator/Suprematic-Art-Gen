@@ -9,12 +9,7 @@ import figures
 TARGET_IMAGE = io.imread("input/unnamed.png")
 INVERSE = np.invert(TARGET_IMAGE)
 PIDIF = np.zeros((512, 512, 3), dtype='uint8')
-for i in range(0, 512):
-    for j in range(0, 512):
-        for k in range(0, 3):
-            PIDIF[i, j, k] = max(TARGET_IMAGE[i, j, k], INVERSE[i, j, k])
-
-MAX_PIX_DIF = np.sum(PIDIF)
+MAX_PIX_DIF = 512*512*255*3
 BLANK_IMAGE = np.zeros((512, 512, 3), dtype=int)
 
 

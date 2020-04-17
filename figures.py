@@ -7,6 +7,7 @@ from math import sin, cos, radians
 
 from skimage import draw
 import numpy as np
+import unit
 
 IMAGE_SIZE = [512, 512]
 
@@ -142,7 +143,7 @@ class Circle(Figure):
         def __init__(self, r: int, c: [int, int], col: (int, int, int)):
             self.radius = r
             self.center = c
-            self.color = col
+            self.color = unit.TARGET_IMAGE[c[0], c[1], :]
 
     def __init__(self, is_random=True, data: CircleData = None):
         if is_random:

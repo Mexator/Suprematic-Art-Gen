@@ -2,18 +2,17 @@ import random as rand
 
 from skimage import io
 import matplotlib.pyplot as plt
-import numpy as np
 
 from unit import Unit
+import unit
 
 # Set up the random seed to obtain repeatable results for debug
 SEED = rand.randint(a=0, b=10000)
-SEED = 7352
+# SEED = 7352
 print("seed: ", SEED, "\n")
 rand.seed(SEED)
 
 input_img = io.imread("input/unnamed.png")
-blank_img = np.zeros((512, 512, 3), dtype=int)
 
 adam = Unit()
 lilith = Unit()
@@ -40,7 +39,8 @@ for i in range(0, ITERATIONS):
 
     children = parents[0].make_children_with(parents[1])
     for child in children:
-        child.mutate()
+        gen.append(child.mutate())
+    
     gen += children
 
 best = None
@@ -52,17 +52,11 @@ for item in gen:
 
 print(best_fitness)
 
-img1 = adam.draw_unit_on(input_img)
-img2 = lilith.draw_unit_on(input_img)
-img3 = rei.draw_unit_on(input_img)
-img4 = best.draw_unit_on(input_img)
+img1 = best.draw_unit_on(unit.BLANK_IMAGE)
+img2 = best.draw_unit_on(unit.TARGET_IMAGE)
 
-plt.subplot(2, 2, 1)
+plt.subplot(2, 1, 1)
 plt.imshow(img1)
-plt.subplot(2, 2, 2)
+plt.subplot(2, 1, 2)
 plt.imshow(img2)
-plt.subplot(2, 2, 3)
-plt.imshow(img3)
-plt.subplot(2, 2, 4)
-plt.imshow(img4)
 plt.show()
