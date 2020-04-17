@@ -138,9 +138,9 @@ class Circle(Figure):
     class CircleData:
         radius: int
         center: [int, int]
-        color: (int, int, int)
+        color: [int, int, int]
 
-        def __init__(self, r: int, c: [int, int], col: (int, int, int)):
+        def __init__(self, r: int, c: [int, int], col: [int, int, int]):
             self.radius = r
             self.center = c
             self.color = unit.TARGET_IMAGE[c[0], c[1], :]
@@ -168,7 +168,7 @@ class Circle(Figure):
     def rotate(self, degrees: int):
         raise NotImplementedError('')
 
-    def change_color(self, color: (int, int, int)):
+    def change_color(self, color: [int, int, int]):
         raise NotImplementedError('')
 
     def intersects(self, other: Figure):

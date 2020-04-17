@@ -72,7 +72,7 @@ class Unit:
         # TODO [or choose 1 figure and changes it via translation, rotation, and color change]
         """
         ret = deepcopy(self)
-        action = randint(1, 4)
+        action = randint(1, 40)
         if action == 1 and len(ret.figures) > 1:
             # Remove random figure
             to_be_removed = rand.choice(ret.figures)
@@ -95,7 +95,7 @@ class Unit:
         return ret
         # TODO: change position
 
-    OPTIMAL_NUMBER = 7
+    OPTIMAL_NUMBER = 20
 
     def fitness(self):
         """
@@ -135,5 +135,14 @@ class Unit:
 
         approx_fitness = 1 - np.sum(
             TARGET_IMAGE - self.draw_unit_on(TARGET_IMAGE)) / MAX_PIX_DIF
-            
-        return figure_number_fitness + figure_intersection_fitness + approx_fitness
+
+        center_distance_fitness = 0
+        for i in range(0, len(self.figures)):
+            for j in range(i, len(self.figures)):
+                center_distance_fitness += figures.Figure.distance(
+                    self.figures[i].data.center, self.figures[j].data.center
+                )
+        center_distance_fitness = 1 / center_distance_fitness
+        center_distance_fitness = 1 - center_distance_fitness
+
+        return 30 * figure_number_fitness + figure_intersection_fitness + approx_fitness + center_distance_fitness
