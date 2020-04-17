@@ -8,6 +8,8 @@ from math import sin, cos, radians
 from skimage import draw
 import numpy as np
 
+IMAGE_SIZE = [512, 512]
+
 
 class FigureType(Enum):
     """Suprematism figure types"""
@@ -29,7 +31,7 @@ def random_figure():
 
 class Figure:
     """Base class for figures"""
-    max_size = [512, 512]
+    max_size = [256, 256]
     figure_type = None
 
     @staticmethod
@@ -194,9 +196,9 @@ class Circle(Figure):
 
     @staticmethod
     def random_circle(min_rad=10):
-        center = [randint(1, Figure.max_size[i] - 1) for i in range(0, 2)]
+        center = [randint(1, IMAGE_SIZE[i] - 1) for i in range(0, 2)]
         tmp = [512 - item for item in center]
-        max_rad = min(center + tmp)
+        max_rad = min(center + tmp + [i/2 for i in Figure.max_size])
         if max_rad < min_rad:
             center, radius = Circle.random_circle()
         else:

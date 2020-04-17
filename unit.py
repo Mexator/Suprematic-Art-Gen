@@ -3,18 +3,24 @@ from copy import copy
 import random as rand
 from random import randint
 from skimage import io
-from PIL import ImageChops
 import numpy as np
 import figures
 
 TARGET_IMAGE = io.imread("input/unnamed.png")
 INVERSE = np.invert(TARGET_IMAGE)
-MAX_PIX_DIF = np.sum(TARGET_IMAGE - INVERSE)
+PIDIF = np.zeros((512, 512, 3), dtype='uint8')
+for i in range(0, 512):
+    for j in range(0, 512):
+        for k in range(0, 3):
+            PIDIF[i, j, k] = max(TARGET_IMAGE[i, j, k], INVERSE[i, j, k])
+
+MAX_PIX_DIF = np.sum(PIDIF)
 
 
 class Unit:
     """Selection Unit that is represented by "z-buffer" of figures.\\
     Each figure is one of the figure types defined in module figure"""
+
     def __init__(self, parent=None):
         if parent is not None:
             self.figures = copy(parent.figures)
@@ -83,6 +89,7 @@ class Unit:
         # TODO: change color, change position
 
     OPTIMAL_NUMBER = 7
+
     def fitness(self):
         """
         Fitness function
@@ -103,7 +110,8 @@ class Unit:
             self.figures.remove(item)
 
         # Numer of figures closer to optimal - the better
-        figure_number_fitness = 1/(abs(len(self.figures)-Unit.OPTIMAL_NUMBER)+1)
+        figure_number_fitness = 1 / \
+            (abs(len(self.figures)-Unit.OPTIMAL_NUMBER)+1)
 
         # More intersections - the better
         figure_intersection_fitness = 0
