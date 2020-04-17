@@ -72,7 +72,7 @@ class Unit:
         # TODO [or choose 1 figure and changes it via translation, rotation, and color change]
         """
         ret = deepcopy(self)
-        action = randint(1, 40)
+        action = randint(1, 4)
         if action == 1 and len(ret.figures) > 1:
             # Remove random figure
             to_be_removed = rand.choice(ret.figures)
@@ -145,4 +145,4 @@ class Unit:
         center_distance_fitness = 1 / center_distance_fitness
         center_distance_fitness = 1 - center_distance_fitness
 
-        return 30 * figure_number_fitness + figure_intersection_fitness + approx_fitness + center_distance_fitness
+        return figure_number_fitness + figure_intersection_fitness + approx_fitness + center_distance_fitness
