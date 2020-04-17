@@ -1,5 +1,5 @@
 """"Module that represent selection unit of genetic algorithm"""
-from copy import copy
+from copy import deepcopy
 import random as rand
 from random import randint
 from skimage import io
@@ -15,6 +15,7 @@ for i in range(0, 512):
             PIDIF[i, j, k] = max(TARGET_IMAGE[i, j, k], INVERSE[i, j, k])
 
 MAX_PIX_DIF = np.sum(PIDIF)
+BLANK_IMAGE = np.zeros((512, 512, 3), dtype=int)
 
 
 class Unit:
@@ -22,12 +23,10 @@ class Unit:
     Each figure is one of the figure types defined in module figure"""
 
     def __init__(self, parent=None):
-        if parent is not None:
-            self.figures = copy(parent.figures)
-        else:
-            self.figures = []
+        self.figures = []
+        if parent is None:
             self.generate_figures()
-        self.fitness_val = self.fitness()
+            self.fitness_val = self.fitness()
 
     def generate_figures(self):
         """Fills self with 10 randomly chosen figures"""
@@ -47,45 +46,56 @@ class Unit:
             canvas[figure.draw()] = figure.data.color
         return canvas
 
-    def make_children_with(self, other, children_number=1):
+    def make_children_with(self, other, children_number=2):
         """
         Represent the crossover operation of evolutionary algorithm.
 
         Produce children_number of children
         """
         children = []
-        for _ in range(0, children_number):
+        figures_pool = self.figures + other.figures
+        rand.shuffle(figures_pool)
+
+        # Each child receives equal share of parents' figures
+        # i.e 1st child receives figures from 0th to (figures_number / children_number)
+        # 2nd child receives figures from (figures_number / children_number) to
+        share = int(len(figures_pool)/children_number)
+
+        for i in range(0, children_number):
             child = Unit(parent=self)
-            for i in range(0, min(len(child.figures), len(other.figures)*2), 2):
-                child.figures[i] = other.figures[int(i/2)]
+            child.figures += figures_pool[i*share:(i+1)*share]
             child.fitness_val = child.fitness()
             children.append(child)
         return children
 
     def mutate(self):
         """
-        Represent in-place mutation
+        Represent not in-place mutation
 
         Randomly changes figures - either shuffles them, add new to existing ones,
         remove one,
         # TODO [or choose 1 figure and changes it via translation, rotation, and color change]
         """
-        action = randint(1, 3)
-        if action == 1 and len(self.figures) > 1:
+        ret = deepcopy(self)
+        action = randint(1, 4)
+        if action == 1 and len(ret.figures) > 1:
             # Remove random figure
-            to_be_removed = rand.choice(self.figures)
-            self.figures.remove(to_be_removed)
-            self.fitness_val = self.fitness()
+            to_be_removed = rand.choice(ret.figures)
+            ret.figures.remove(to_be_removed)
         elif action == 2:
             # Add random figure
             # type = rand.choice(list(FigureType))
             figure = figures.random_figure()
-            self.figures.append(figure)
-            self.fitness_val = self.fitness()
+            ret.figures.append(figure)
         elif action == 3:
             # Change order
-            rand.shuffle(self.figures)
-            self.fitness_val = self.fitness()
+            rand.shuffle(ret.figures)
+        elif action == 4:
+            # Change colors
+            for fig in ret.figures:
+                fig.color = figures.Figure.random_color()
+        ret.fitness_val = ret.fitness()
+        return ret
         # TODO: change color, change position
 
     OPTIMAL_NUMBER = 7
@@ -126,7 +136,7 @@ class Unit:
         if(max_figure_intersection_fitness > 1):
             figure_intersection_fitness /= max_figure_intersection_fitness
 
-        approx_fitness = np.sum(
-            TARGET_IMAGE - self.draw_unit_on(TARGET_IMAGE)) / MAX_PIX_DIF
+        approx_fitness = 1 - np.sum(
+            TARGET_IMAGE - self.draw_unit_on(BLANK_IMAGE)) / MAX_PIX_DIF
 
         return figure_number_fitness + figure_intersection_fitness + approx_fitness

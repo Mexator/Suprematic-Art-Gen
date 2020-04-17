@@ -36,7 +36,7 @@ class Figure:
 
     @staticmethod
     def random_color():
-        return (randint(50, 255), randint(50, 255), randint(50, 255))
+        return (randint(0, 255), randint(0, 255), randint(0, 255))
 
     @staticmethod
     def distance(point1: [int, int], point2: [int, int]):
