@@ -39,9 +39,8 @@ for i in range(0, ITERATIONS):
 
     children = parents[0].make_children_with(parents[1])
     for child in children:
-        gen.append(child.mutate())
-    
-    gen += children
+        mutant = child.mutate() 
+        gen.append(mutant)
 
 best = None
 best_fitness = 0
@@ -50,7 +49,7 @@ for item in gen:
         best = item
         best_fitness = item.fitness_val
 
-print(best_fitness)
+print(best.fitness(verbose=True))
 
 img1 = best.draw_unit_on(unit.BLANK_IMAGE)
 img2 = best.draw_unit_on(unit.TARGET_IMAGE)
@@ -59,4 +58,5 @@ plt.subplot(2, 1, 1)
 plt.imshow(img1)
 plt.subplot(2, 1, 2)
 plt.imshow(img2)
-plt.show()
+# plt.show()
+plt.savefig("output/"+str(SEED)+".png")
