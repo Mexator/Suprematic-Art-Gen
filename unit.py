@@ -79,7 +79,6 @@ class Unit:
             ret.figures.remove(to_be_removed)
         elif action == 2:
             # Add random figure
-            # type = rand.choice(list(FigureType))
             figure = figures.random_figure()
             ret.figures.append(figure)
         elif action == 3:
@@ -95,9 +94,10 @@ class Unit:
         return ret
         # TODO: change position
 
-    OPTIMAL_NUMBER = 20
+    OPTIMAL_NUMBER = 7
+    MAX_CDF = figures.Figure.distance([0, 0], [512, 512])
 
-    def fitness(self):
+    def fitness(self, verbose=False):
         """
         Fitness function
 
@@ -117,8 +117,10 @@ class Unit:
             self.figures.remove(item)
 
         # Numer of figures closer to optimal - the better
-        figure_number_fitness = 1 / \
-            (abs(len(self.figures)-Unit.OPTIMAL_NUMBER)+1)
+        # figure_number_fitness = 1 / \
+        #     (abs(len(self.figures)-Unit.OPTIMAL_NUMBER)+1)
+        figure_number_fitness = 1 - abs(
+            len(self.figures)-Unit.OPTIMAL_NUMBER)/Unit.OPTIMAL_NUMBER
 
         # More intersections - the better
         figure_intersection_fitness = 0
@@ -133,16 +135,26 @@ class Unit:
         if max_figure_intersection_fitness > 1:
             figure_intersection_fitness /= max_figure_intersection_fitness
 
-        approx_fitness = 1 - np.sum(
-            TARGET_IMAGE - self.draw_unit_on(TARGET_IMAGE)) / MAX_PIX_DIF
+        # approx_fitness = 1 - np.sum(
+        #     TARGET_IMAGE - self.draw_unit_on(TARGET_IMAGE)) / MAX_PIX_DIF
 
         center_distance_fitness = 0
         for i in range(0, len(self.figures)):
-            for j in range(i, len(self.figures)):
+            for j in range(i+1, len(self.figures)):
                 center_distance_fitness += figures.Figure.distance(
                     self.figures[i].data.center, self.figures[j].data.center
                 )
-        center_distance_fitness = 1 / center_distance_fitness
-        center_distance_fitness = 1 - center_distance_fitness
+        if(center_distance_fitness != 0):
+            center_distance_fitness /= len(self.figures) * \
+                (len(self.figures)-1)/2
+            center_distance_fitness /= Unit.MAX_CDF
 
-        return figure_number_fitness + figure_intersection_fitness + approx_fitness + center_distance_fitness
+        if verbose:
+            print("figure_number_fitness = ", figure_number_fitness)
+            print("figure_intersection_fitness = ",
+                  figure_intersection_fitness)
+            # print("approx_fitness = ", approx_fitness)
+            print("center_distance_fitness = ", center_distance_fitness)
+
+        return figure_number_fitness + figure_intersection_fitness + center_distance_fitness 
+        # + 0.25 * approx_fitness
