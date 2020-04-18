@@ -109,8 +109,8 @@ class Unit:
         """
         # Delete invisible figures
         to_be_removed = []
-        for i in range(len(self.figures)-1, 0, -1):
-            for j in range(i-1, 0, -1):
+        for i in range(len(self.figures)-1, -1, -1):
+            for j in range(i-1, -1, -1):
                 if self.figures[i].covers(self.figures[j]):
                     to_be_removed.append(self.figures[j])
         for item in set(to_be_removed):
