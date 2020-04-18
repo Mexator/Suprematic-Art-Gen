@@ -3,6 +3,6 @@ __pycache__
 report/report*
 !report/report*.tex
 !input/*
-!output/*
+output/*
 .venv
 tst.py

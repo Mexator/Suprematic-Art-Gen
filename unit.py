@@ -4,13 +4,25 @@ import random as rand
 from random import randint
 from skimage import io
 import numpy as np
+import cv2
 import figures
 
 TARGET_IMAGE = io.imread("input/unnamed.png")
+average = TARGET_IMAGE.mean(axis=0).mean(axis=0)
+pixels = np.float32(TARGET_IMAGE.reshape(-1, 3))
+
+n_colors = 5
+criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 200, .1)
+flags = cv2.KMEANS_RANDOM_CENTERS
+
+_, labels, palette = cv2.kmeans(pixels, n_colors, None, criteria, 10, flags)
+_, counts = np.unique(labels, return_counts=True)
+
+dominant = np.uint8(palette[np.argmax(counts)])
+
+BLANK_IMAGE = np.full((512, 512, 3), dominant)
 INVERSE = np.invert(TARGET_IMAGE)
-PIDIF = np.zeros((512, 512, 3), dtype='uint8')
-MAX_PIX_DIF = max(np.sum(TARGET_IMAGE-PIDIF), np.sum(INVERSE-PIDIF))
-BLANK_IMAGE = np.zeros((512, 512, 3), dtype=int)
+MAX_PIX_DIF = max(np.sum(TARGET_IMAGE-BLANK_IMAGE), np.sum(INVERSE-BLANK_IMAGE))
 
 
 class Unit:
@@ -96,6 +108,8 @@ class Unit:
 
     OPTIMAL_NUMBER = 7
     MAX_CDF = figures.Figure.distance([0, 0], [512, 512])
+    CENTER_POINT = [len(TARGET_IMAGE)/2, len(TARGET_IMAGE[0])/2]
+    MAX_CENTER_DIST = figures.Figure.distance([0, 0], CENTER_POINT)
 
     def fitness(self, verbose=False):
         """
@@ -135,8 +149,8 @@ class Unit:
         if max_figure_intersection_fitness > 1:
             figure_intersection_fitness /= max_figure_intersection_fitness
 
-        # approx_fitness = 1 - np.sum(
-        #     TARGET_IMAGE - self.draw_unit_on(TARGET_IMAGE)) / MAX_PIX_DIF
+        approx_fitness = 1 - np.sum(
+            TARGET_IMAGE - self.draw_unit_on(TARGET_IMAGE)) / MAX_PIX_DIF
 
         center_distance_fitness = 0
         for i in range(0, len(self.figures)):
@@ -149,12 +163,23 @@ class Unit:
                 (len(self.figures)-1)/2
             center_distance_fitness /= Unit.MAX_CDF
 
+        # average centers closer to image cnter - the better
+        spreading_fitness = 0
+        for fig in self.figures:
+            spreading_fitness += figures.Figure.distance(Unit.CENTER_POINT,
+                                                         fig.data.center)
+        spreading_fitness /= len(self.figures)
+        spreading_fitness /= Unit.MAX_CENTER_DIST
+        spreading_fitness = 1 - spreading_fitness
+        
         if verbose:
             print("figure_number_fitness = ", figure_number_fitness)
             print("figure_intersection_fitness = ",
                   figure_intersection_fitness)
-            # print("approx_fitness = ", approx_fitness)
+            print("approx_fitness = ", approx_fitness)
             print("center_distance_fitness = ", center_distance_fitness)
+            print("spreading_fitness = ", spreading_fitness)
 
-        return figure_number_fitness + figure_intersection_fitness + center_distance_fitness 
+
+        return figure_number_fitness + figure_intersection_fitness + center_distance_fitness + spreading_fitness
         # + 0.25 * approx_fitness
