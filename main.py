@@ -22,24 +22,27 @@ print(adam.fitness())
 print(lilith.fitness())
 print(rei.fitness())
 
+def sortUnits(u:unit.Unit):
+    return u.fitness_val
+
 ITERATIONS = 1000
 gen = [adam, lilith, rei]
 for i in range(0, ITERATIONS):
     if(len(gen) < 2):
         break
-    sample = rand.sample(gen, min(10, len(gen)-1))
-    best1 = sample[0]
-    best2 = sample[1]
-    for j in range(2, len(sample)):
-        if (sample[j].fitness_val > best1.fitness_val):
-            best1 = sample[j]
-        elif (sample[j].fitness_val > best2.fitness_val):
-            best2 = sample[j]
+    sample = sorted(rand.sample(gen, min(10, len(gen)-1)), key=sortUnits)
+
+    best1 = sample[-1]
+    best2 = sample[-2]
     parents = [best1, best2]
+    if(len(gen) > 100):
+        gen = list(filter(sample[0].__ne__, gen))
+        gen = list(filter(sample[1].__ne__, gen))
+        gen = list(filter(sample[2].__ne__, gen))
 
     children = parents[0].make_children_with(parents[1])
     for child in children:
-        mutant = child.mutate() 
+        mutant = child.mutate()
         gen.append(mutant)
 
 best = None
@@ -58,5 +61,5 @@ plt.subplot(2, 1, 1)
 plt.imshow(img1)
 plt.subplot(2, 1, 2)
 plt.imshow(img2)
-# plt.show()
+plt.show()
 plt.savefig("output/"+str(SEED)+".png")

@@ -7,7 +7,30 @@ import numpy as np
 import cv2
 import figures
 
-TARGET_IMAGE = io.imread("input/unnamed.png")
+
+def rgba2rgb(rgba, background=(255, 255, 255)):
+    row, col, ch = rgba.shape
+
+    if ch == 3:
+        return rgba
+
+    assert ch == 4, 'RGBA image has 4 channels.'
+
+    rgb = np.zeros((row, col, 3), dtype='float32')
+    r, g, b, a = rgba[:, :, 0], rgba[:, :, 1], rgba[:, :, 2], rgba[:, :, 3]
+
+    a = np.asarray(a, dtype='float32') / 255.0
+
+    R, G, B = background
+
+    rgb[:, :, 0] = r * a + (1.0 - a) * R
+    rgb[:, :, 1] = g * a + (1.0 - a) * G
+    rgb[:, :, 2] = b * a + (1.0 - a) * B
+
+    return np.asarray(rgb, dtype='uint8')
+
+
+TARGET_IMAGE = rgba2rgb(io.imread("input/unnamed.png"))
 average = TARGET_IMAGE.mean(axis=0).mean(axis=0)
 pixels = np.float32(TARGET_IMAGE.reshape(-1, 3))
 
@@ -22,7 +45,10 @@ dominant = np.uint8(palette[np.argmax(counts)])
 
 BLANK_IMAGE = np.full((512, 512, 3), dominant)
 INVERSE = np.invert(TARGET_IMAGE)
-MAX_PIX_DIF = max(np.sum(TARGET_IMAGE-BLANK_IMAGE), np.sum(INVERSE-BLANK_IMAGE))
+MAX_PIX_DIF = max(np.sum(TARGET_IMAGE-BLANK_IMAGE),
+                  np.sum(INVERSE-BLANK_IMAGE))
+
+MAX_CONTRAST = np.linalg.norm([255, 255, 255])
 
 
 class Unit:
@@ -94,17 +120,18 @@ class Unit:
             figure = figures.random_figure()
             ret.figures.append(figure)
         elif action == 3:
-            # Change order
-            rand.shuffle(ret.figures)
-        elif action == 4:
             # Change colors
-            for fig in ret.figures:
-                comp = randint(0, 2)
-                add = randint(-1, 1)
-                fig.data.color[comp] += add * 10
-        ret.fitness_val = ret.fitness()
+            f = rand.randint(0, len(ret.figures)-1)
+            comp = randint(0, 2)
+            add = randint(0, 1)
+            if add == 0:
+                add = -1
+            ret.figures[f].data.color[comp] += add * 20
+        elif action == 4:
+            f = rand.randint(0, len(ret.figures)-1)
+            ret.figures[f].translate([randint(-30, 30), randint(-30, 30)])
+        ret.fitness_val = ret.fitness(verbose=True)
         return ret
-        # TODO: change position
 
     OPTIMAL_NUMBER = 7
     MAX_CDF = figures.Figure.distance([0, 0], [512, 512])
@@ -143,11 +170,12 @@ class Unit:
                 figure_intersection_fitness += self.figures[i].intersects(
                     self.figures[j])
         max_figure_intersection_fitness = len(
-            self.figures)*(len(self.figures) - 1)/2
+            self.figures)*(len(self.figures) - 1)/(2*2)
         # According to Wikipedia
         # https://en.wikipedia.org/wiki/Complete_graph
         if max_figure_intersection_fitness > 1:
             figure_intersection_fitness /= max_figure_intersection_fitness
+        figure_intersection_fitness = min(figure_intersection_fitness, 1)
 
         approx_fitness = 1 - np.sum(
             TARGET_IMAGE - self.draw_unit_on(TARGET_IMAGE)) / MAX_PIX_DIF
@@ -171,7 +199,21 @@ class Unit:
         spreading_fitness /= len(self.figures)
         spreading_fitness /= Unit.MAX_CENTER_DIST
         spreading_fitness = 1 - spreading_fitness
-        
+
+        # Contrast
+        contrast_fitness = 0
+        for fig in self.figures:
+            # TODO write color diff function
+            contrast_fitness += figures.Figure.color_difference(
+                BLANK_IMAGE[0][0], fig.data.color
+            )
+        contrast_fitness /= MAX_CONTRAST
+        contrast_fitness /= len(self.figures)
+
+        ret = figure_number_fitness + figure_intersection_fitness
+        ret += center_distance_fitness + spreading_fitness
+        ret += contrast_fitness + approx_fitness
+
         if verbose:
             print("figure_number_fitness = ", figure_number_fitness)
             print("figure_intersection_fitness = ",
@@ -179,7 +221,7 @@ class Unit:
             print("approx_fitness = ", approx_fitness)
             print("center_distance_fitness = ", center_distance_fitness)
             print("spreading_fitness = ", spreading_fitness)
+            print("contrast_fitness = ", contrast_fitness)
+            print("result = ", ret)
 
-
-        return figure_number_fitness + figure_intersection_fitness + center_distance_fitness + spreading_fitness
-        # + 0.25 * approx_fitness
+        return ret
