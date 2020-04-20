@@ -1,5 +1,6 @@
 """Main module of program"""
 import random as rand
+import time
 
 from skimage import io
 import matplotlib.pyplot as plt
@@ -10,10 +11,10 @@ import constants
 import preprocessing
 
 # Set up the random seed to obtain repeatable results for debug
-SEED = rand.randint(a=0, b=10000)
-# SEED = 7352
-print("seed: ", SEED, "\n")
-rand.seed(SEED)
+if constants.SEED is None:
+    constants.SEED = int(time.time())
+print("seed: ", constants.SEED, "\n")
+rand.seed(constants.SEED)
 
 # Read image
 TARGET_IMAGE = preprocessing.rgba2rgb(io.imread(constants.INPUT_IMG_NAME))
@@ -23,56 +24,40 @@ BLANK_IMAGE = preprocessing.get_blank(
 # Setup unit class
 Unit.setup_conditions(TARGET_IMAGE, BLANK_IMAGE)
 
-adam = Unit()
-lilith = Unit()
-rei = adam.make_children_with(lilith)[0]
+GENERATION = [Unit() for _ in range(constants.START_UNITS)]
 
-print(adam.fitness())
-print(lilith.fitness())
-print(rei.fitness())
-
-
-def sortUnits(u: unit.Unit):
-    return u.fitness_val
-
-
-gen = [adam, lilith, rei]
-for i in range(0, constants.ITERATIONS):
-    if(len(gen) < 2):
+for _ in range(0, constants.ITERATIONS):
+    if len(GENERATION) < 2:
         break
-    sample = sorted(rand.sample(gen, min(10, len(gen)-1)), key=sortUnits)
+    sample = sorted(rand.sample(GENERATION, min(10, len(GENERATION)-1)),
+                    key=unit.unit_comparator_metric)
 
     best1 = sample[-1]
     best2 = sample[-2]
     parents = [best1, best2]
     rem = list(sample[-1:-2])
-    gen = [i for i in gen if i not in rem]
+    GENERATION = [i for i in GENERATION if i not in rem]
 
     children = parents[0].make_children_with(parents[1])
     for child in children:
         mutant = child.mutate()
-        gen.append(mutant)
+        GENERATION.append(mutant)
 
-best = None
-best_fitness = 0
-for item in gen:
-    if (best is None) or (item.fitness_val > best_fitness):
-        best = item
-        best_fitness = item.fitness_val
+BEST = None
+BEST_FITNESS = 0
+for item in GENERATION:
+    if (BEST is None) or (item.fitness_val > BEST_FITNESS):
+        BEST = item
+        BEST_FITNESS = item.fitness_val
 
-constants.VERBOSE_MODE = True
-print(best.fitness())
-constants.VERBOSE_MODE = False
+print(BEST.fitness(verbose=True))
 
-
-img1 = best.draw_unit_on(BLANK_IMAGE)
-img2 = TARGET_IMAGE
-
-dpi = 80
-plt.gcf().set_size_inches(1024/dpi, 512/dpi)
+DPI = 80
+plt.gcf().set_size_inches(1024/DPI, 512/DPI)
 plt.subplot(1, 2, 1)
-plt.imshow(img1)
+plt.imshow(BEST.draw_unit_on(BLANK_IMAGE))
 plt.subplot(1, 2, 2)
-plt.imshow(img2)
-# plt.show()
-plt.savefig("output/"+str(constants.ITERATIONS)+"x"+str(SEED)+".png")
+plt.imshow(TARGET_IMAGE)
+plt.savefig("output/"+str(constants.ITERATIONS)+"x"+str(constants.SEED)+".png")
+if constants.SHOW_RESULT:
+    plt.show()

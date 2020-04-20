@@ -1,10 +1,14 @@
 """Module that contains constants, needed in the algorithm. Can be treated as config file"""
 INPUT_IMG_NAME = "input/unnamed.png"
-IMG_W = 512
-IMG_H = 512
-IMAGE_SIZE = [IMG_W, IMG_H]
+IMAGE_WIDTH = 512
+IMAGE_HEIGHT = 512
+IMAGE_SIZE = [IMAGE_WIDTH, IMAGE_HEIGHT]
 
 VERBOSE_MODE = False
 SHOW_ITERATIONS = False
 
+START_UNITS = 10
 ITERATIONS = 10
+SEED = None
+
+SHOW_RESULT = True

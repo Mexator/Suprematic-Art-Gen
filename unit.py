@@ -12,7 +12,7 @@ import constants
 class Unit:
     """Selection Unit that is represented by "z-buffer" of figures.\\
     Each figure is one of the figure types defined in module figure"""
-    SETUP_CALLED = False
+    setup_called = False
     @staticmethod
     def setup_conditions(target, canvas):
         Unit.TARGET = target
@@ -115,7 +115,7 @@ class Unit:
         ret.fitness_val = ret.fitness()
         return ret
 
-    def fitness(self):
+    def fitness(self, verbose=False):
         """
         Fitness function
 
@@ -214,7 +214,7 @@ class Unit:
         ret += bg_contrast_fitness + approx_fitness
         ret += contrast_fitness + type_fitness
 
-        if constants.VERBOSE_MODE:
+        if verbose:
             print("figure_number_fitness = ", figure_number_fitness)
             print("figure_intersection_fitness = ",
                   figure_intersection_fitness)
@@ -227,3 +227,7 @@ class Unit:
             print("result = ", ret)
 
         return ret
+
+
+def unit_comparator_metric(u: Unit):
+    return u.fitness_val
