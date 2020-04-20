@@ -42,7 +42,7 @@ class Figure:
         """Check given point to be inside of current figure"""
         vertices = self.data.vertices()
 
-        polygon_area = geo.pivotal_area(vertices)
+        polygon_area = self.data.area()
         area_from_external_point = geo.pivotal_area(vertices, point)
 
         return abs(polygon_area - area_from_external_point) < 1e-5
@@ -63,6 +63,8 @@ class Figure:
         max_rad = min(center + tmp + [i/2 for i in Figure.MAX_SIZE])
         self.data.radius *= scale
         self.data.radius = np.clip(self.data.radius, a_min=0, a_max=max_rad)
+        if self.data.area_val is not None:
+            self.data.area_val = self.data.area()
 
 
 class Circle(Figure):
@@ -131,12 +133,22 @@ class Rectangle(Figure):
     """Rectangle class"""
     figure_type = FigureType.Rectangle
 
+    count = 0
+    count2 = 0
+
     class RectangleData(Circle.CircleData):
         """Necessary data to create rectangle: circumscribed circle and two angles"""
 
         def __init__(self, r: int, c: [int, int], thetas: (float, float)):
             super().__init__(r, c)
             self.angles = thetas
+            self.area_val = None
+
+        def area(self) -> float:
+            """returns area of the rectangle"""
+            if self.area_val is None:
+                self.area_val = geo.pivotal_area(self.vertices())
+            return self.area_val
 
         def vertices(self) -> np.array:
             """returns vertices of the rectangle"""
