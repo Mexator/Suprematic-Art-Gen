@@ -25,7 +25,7 @@ print(rei.fitness())
 def sortUnits(u:unit.Unit):
     return u.fitness_val
 
-ITERATIONS = 1000
+ITERATIONS = 10
 gen = [adam, lilith, rei]
 for i in range(0, ITERATIONS):
     if(len(gen) < 2):
@@ -54,11 +54,13 @@ for item in gen:
 print(best.fitness(verbose=True))
 
 img1 = best.draw_unit_on(unit.BLANK_IMAGE)
-img2 = best.draw_unit_on(unit.TARGET_IMAGE)
+img2 = unit.TARGET_IMAGE
 
-plt.subplot(2, 1, 1)
+dpi = 80
+plt.gcf().set_size_inches(1024/dpi,512/dpi)
+plt.subplot(1, 2, 1)
 plt.imshow(img1)
-plt.subplot(2, 1, 2)
+plt.subplot(1, 2, 2)
 plt.imshow(img2)
-plt.show()
+# plt.show()
 plt.savefig("output/"+str(ITERATIONS)+"x"+str(SEED)+".png")
