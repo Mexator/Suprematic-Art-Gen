@@ -209,7 +209,7 @@ class Circle(Figure):
             return True
 
     @staticmethod
-    def random_circle(min_rad=10):
+    def random_circle(min_rad=30):
         center = [randint(1, IMAGE_SIZE[i] - 1) for i in range(0, 2)]
         tmp = [512 - item for item in center]
         max_rad = min(center + tmp + [i/2 for i in Figure.max_size])
@@ -250,7 +250,7 @@ class Rectangle(Figure):
     def __init__(self, is_random=True, data: RectangleData = None):
         if is_random:
             color = Figure.random_color()
-            center, radius = Circle.random_circle(min_rad=30)
+            center, radius = Circle.random_circle(min_rad=50)
             angle1 = randint(0, 360)
             angle2 = randint(0, 360)
             if abs(angle1 % 180 - angle2 % 180) < 30:

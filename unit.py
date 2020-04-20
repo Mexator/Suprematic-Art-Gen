@@ -86,8 +86,10 @@ class Unit:
         Produce children_number of children
         """
         children = []
-        figures_pool = self.figures + other.figures
+        figures_pool = deepcopy(self.figures) + deepcopy(other.figures)
         rand.shuffle(figures_pool)
+        for figure in figures_pool:
+            figure.translate([randint(-20, 20) for i in range(0,2)])
 
         # Each child receives equal share of parents' figures
         # i.e 1st child receives figures from 0th to (figures_number / children_number)
