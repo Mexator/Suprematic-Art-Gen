@@ -2,61 +2,33 @@
 from copy import deepcopy
 import random as rand
 from random import randint
-from skimage import io
 import numpy as np
-import cv2
 import figures
 import geometry_helper_functions as geo
-
-
-def rgba2rgb(rgba, background=(255, 255, 255)):
-    row, col, ch = rgba.shape
-
-    if ch == 3:
-        return rgba
-
-    assert ch == 4, 'RGBA image has 4 channels.'
-
-    rgb = np.zeros((row, col, 3), dtype='float32')
-    r, g, b, a = rgba[:, :, 0], rgba[:, :, 1], rgba[:, :, 2], rgba[:, :, 3]
-
-    a = np.asarray(a, dtype='float32') / 255.0
-
-    R, G, B = background
-
-    rgb[:, :, 0] = r * a + (1.0 - a) * R
-    rgb[:, :, 1] = g * a + (1.0 - a) * G
-    rgb[:, :, 2] = b * a + (1.0 - a) * B
-
-    return np.asarray(rgb, dtype='uint8')
-
-
-TARGET_IMAGE = rgba2rgb(io.imread("input/unnamed.png"))
-average = TARGET_IMAGE.mean(axis=0).mean(axis=0)
-pixels = np.float32(TARGET_IMAGE.reshape(-1, 3))
-
-n_colors = 5
-criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 200, .1)
-flags = cv2.KMEANS_RANDOM_CENTERS
-
-_, labels, palette = cv2.kmeans(pixels, n_colors, None, criteria, 10, flags)
-_, counts = np.unique(labels, return_counts=True)
-
-dominant = np.uint8(palette[np.argmax(counts)])
-
-BLANK_IMAGE = np.full((512, 512, 3), dominant)
-INVERSE = np.invert(TARGET_IMAGE)
-MAX_PIX_DIF = max(np.sum(TARGET_IMAGE-BLANK_IMAGE),
-                  np.sum(INVERSE-BLANK_IMAGE))
-
-MAX_CONTRAST = np.linalg.norm([255, 255, 255])
-
+import constants
 
 class Unit:
     """Selection Unit that is represented by "z-buffer" of figures.\\
     Each figure is one of the figure types defined in module figure"""
+    SETUP_CALLED = False
+    @staticmethod
+    def setup_conditions(target, canvas):
+        Unit.TARGET = target
+        Unit.CANVAS = canvas
+        Unit.MAX_PIX_DIF = max(np.sum(target - canvas),
+                  np.sum(np.invert(target) - canvas))
+        Unit.MAX_CONTRAST = np.linalg.norm([255, 255, 255])
+
+        Unit.OPTIMAL_NUMBER = 7
+        Unit.MAX_CDF = geo.distance([0, 0], [512, 512])
+        Unit.CENTER_POINT = [len(Unit.TARGET)/2, len(Unit.TARGET[0])/2]
+        Unit.MAX_CENTER_DIST = geo.distance([0, 0], Unit.CENTER_POINT)
+
+        Unit.SETUP_CALLED = True
 
     def __init__(self, parent=None):
+        if not Unit.SETUP_CALLED:
+            raise Exception("Please, setup conditions first")
         self.figures = []
         if parent is None:
             self.generate_figures()
@@ -113,7 +85,7 @@ class Unit:
         # TODO [or choose 1 figure and changes it via translation, rotation, and color change]
         """
         ret = deepcopy(self)
-        action = randint(1, 4)
+        action = randint(1, 5)
         if action == 1 and len(ret.figures) > 1:
             # Remove random figure
             to_be_removed = rand.choice(ret.figures)
@@ -131,17 +103,17 @@ class Unit:
                 add = -1
             ret.figures[f].data.color[comp] += add * 20
         elif action == 4:
+            # Move figure
             f = rand.randint(0, len(ret.figures)-1)
             ret.figures[f].translate([randint(-30, 30), randint(-30, 30)])
+        elif action == 5:
+            f = rand.randint(0, len(ret.figures)-1)
+            rot = randint(0, 180)
+            ret.figures[f].rotate(rot)
         ret.fitness_val = ret.fitness()
         return ret
 
-    OPTIMAL_NUMBER = 7
-    MAX_CDF = geo.distance([0, 0], [512, 512])
-    CENTER_POINT = [len(TARGET_IMAGE)/2, len(TARGET_IMAGE[0])/2]
-    MAX_CENTER_DIST = geo.distance([0, 0], CENTER_POINT)
-
-    def fitness(self, verbose=False):
+    def fitness(self):
         """
         Fitness function
 
@@ -178,7 +150,7 @@ class Unit:
 
         if(figure_intersection_fitness > 0):
             contrast_fitness /= figure_intersection_fitness
-            contrast_fitness /= MAX_CONTRAST
+            contrast_fitness /= Unit.MAX_CONTRAST
         else:
             contrast_fitness = 1
 
@@ -191,7 +163,7 @@ class Unit:
         figure_intersection_fitness = min(figure_intersection_fitness, 1)
 
         approx_fitness = 1 - np.sum(
-            TARGET_IMAGE - self.draw_unit_on(TARGET_IMAGE)) / MAX_PIX_DIF
+            Unit.TARGET - self.draw_unit_on(Unit.TARGET)) / Unit.MAX_PIX_DIF
 
         center_distance_fitness = 0
         for i in range(0, len(self.figures)):
@@ -216,11 +188,10 @@ class Unit:
         # Contrast with bg
         bg_contrast_fitness = 0
         for fig in self.figures:
-            # TODO write color diff function
             bg_contrast_fitness += figures.Figure.color_difference(
-                BLANK_IMAGE[0][0], fig.data.color
+                Unit.CANVAS[0][0], fig.data.color
             )
-        bg_contrast_fitness /= MAX_CONTRAST
+        bg_contrast_fitness /= Unit.MAX_CONTRAST
         bg_contrast_fitness /= len(self.figures)
 
         # Types should be difference
@@ -240,7 +211,7 @@ class Unit:
         ret += bg_contrast_fitness + approx_fitness
         ret += contrast_fitness + type_fitness
 
-        if verbose:
+        if constants.VERBOSE_MODE:
             print("figure_number_fitness = ", figure_number_fitness)
             print("figure_intersection_fitness = ",
                   figure_intersection_fitness)
