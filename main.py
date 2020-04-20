@@ -25,7 +25,7 @@ print(rei.fitness())
 def sortUnits(u:unit.Unit):
     return u.fitness_val
 
-ITERATIONS = 10
+ITERATIONS = 1000
 gen = [adam, lilith, rei]
 for i in range(0, ITERATIONS):
     if(len(gen) < 2):

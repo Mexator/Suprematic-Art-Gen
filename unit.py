@@ -6,6 +6,7 @@ from skimage import io
 import numpy as np
 import cv2
 import figures
+import geometry_helper_functions as geo
 
 
 def rgba2rgb(rgba, background=(255, 255, 255)):
@@ -136,9 +137,9 @@ class Unit:
         return ret
 
     OPTIMAL_NUMBER = 7
-    MAX_CDF = figures.Figure.distance([0, 0], [512, 512])
+    MAX_CDF = geo.distance([0, 0], [512, 512])
     CENTER_POINT = [len(TARGET_IMAGE)/2, len(TARGET_IMAGE[0])/2]
-    MAX_CENTER_DIST = figures.Figure.distance([0, 0], CENTER_POINT)
+    MAX_CENTER_DIST = geo.distance([0, 0], CENTER_POINT)
 
     def fitness(self, verbose=False):
         """
@@ -195,7 +196,7 @@ class Unit:
         center_distance_fitness = 0
         for i in range(0, len(self.figures)):
             for j in range(i+1, len(self.figures)):
-                center_distance_fitness += figures.Figure.distance(
+                center_distance_fitness += geo.distance(
                     self.figures[i].data.center, self.figures[j].data.center
                 )
         if(center_distance_fitness != 0):
@@ -206,7 +207,7 @@ class Unit:
         # average centers closer to image cnter - the better
         spreading_fitness = 0
         for fig in self.figures:
-            spreading_fitness += figures.Figure.distance(Unit.CENTER_POINT,
+            spreading_fitness += geo.distance(Unit.CENTER_POINT,
                                                          fig.data.center)
         spreading_fitness /= len(self.figures)
         spreading_fitness /= Unit.MAX_CENTER_DIST
