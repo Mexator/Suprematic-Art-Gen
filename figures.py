@@ -22,12 +22,11 @@ class FigureType(Enum):
 
 def random_figure():
     """Returns random  suprematism figure"""
+    figures_dict = {
+        FigureType.Circle: Circle(),
+        FigureType.Rectangle: Rectangle()}
     _type = rand.choice(list(FigureType))
-    if _type == FigureType.Circle:
-        return Circle()
-    if _type == FigureType.Rectangle:
-        return Rectangle()
-    return None
+    return figures_dict[_type]
 
 
 class Figure:
@@ -72,12 +71,10 @@ class Figure:
     def translate(self, translation_vector):
         self.data.center += np.asarray(translation_vector)
         rad = self.data.radius
-        for i in range(0, len(self.data.center)):
-            if self.data.center[i] + rad > constants.IMAGE_SIZE[i]:
-                self.data.center[i] = constants.IMAGE_SIZE[i]-rad
-            if self.data.center[i] - rad < 0:
-                self.data.center[i] = rad
-    
+        lower_bound = [rad,rad]
+        upper_bound = [i - rad for i in constants.IMAGE_SIZE]
+        np.clip(self.data.center, a_min = lower_bound, a_max = upper_bound)
+
     def scale(self, scale):
         self.data.radius *= scale
 
@@ -149,7 +146,7 @@ class Circle(Figure):
         else:
             radius = randint(min_rad, max_rad)
         return [center, radius]
-    
+
     def rotate(self, degrees):
         pass
 
@@ -256,7 +253,7 @@ class Rectangle(Figure):
                     return False
             return True
         return False
-    
+
     def rotate(self, degrees):
         for i in self.data.angles:
             i += degrees
