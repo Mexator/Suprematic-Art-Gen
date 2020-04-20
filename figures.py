@@ -77,38 +77,6 @@ class Figure:
             if self.data.center[i] - rad < 0:
                 self.data.center[i] = rad
 
-    @staticmethod
-    def rotation_matrix(theta):
-        return np.array([
-            [cos(theta), -sin(theta)],
-            [sin(theta), cos(theta)]
-        ])
-
-    @staticmethod
-    def line_segments_intersection(seg1: [[int, int], [int, int]],
-                                   seg2: [[int, int], [int, int]]) -> bool:
-        o1 = np.asarray(seg1[0])
-        d1 = np.asarray(seg1[1])-np.asarray(seg1[0])
-        o2 = np.asarray(seg2[0])
-        d2 = np.asarray(seg2[1])-np.asarray(seg2[0])
-
-        d2_ort = d2.dot(Figure.rotation_matrix(np.pi/2))
-        d1_ort = d1.dot(Figure.rotation_matrix(np.pi/2))
-
-        tmp = d1.dot(d2_ort)
-        if abs(tmp) <= 1e-10:
-            return False
-        s = (o2-o1).dot(d2_ort)
-        s /= tmp
-
-        tmp = d2.dot(d1_ort)
-        if abs(tmp) <= 1e-10:
-            return False
-        t = (o1-o2).dot(d1_ort)
-        t /= tmp
-
-        return s > 0 and s < 1 and t > 0 and t < 1
-
 
 class Circle(Figure):
     figure_type = FigureType.Circle
@@ -261,7 +229,7 @@ class Rectangle(Figure):
                 prev2 = vertices2[-1]
                 for j in range(0, len(vertices2[0])):
                     edge2 = [prev2, vertices2[j]]
-                    if Figure.line_segments_intersection(edge, edge2):
+                    if geo.line_segments_intersection(edge, edge2):
                         return True
                     prev2 = vertices2[j]
                 prev = vertices[i]
