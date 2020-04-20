@@ -71,9 +71,10 @@ class Figure:
     def translate(self, translation_vector):
         self.data.center += np.asarray(translation_vector)
         rad = self.data.radius
-        lower_bound = [rad,rad]
-        upper_bound = [i - rad for i in constants.IMAGE_SIZE]
-        np.clip(self.data.center, a_min = lower_bound, a_max = upper_bound)
+        lower_bound = [rad+1, rad+1]
+        upper_bound = [(i-1) - rad for i in constants.IMAGE_SIZE]
+        self.data.center = np.clip(
+            self.data.center, a_min=lower_bound, a_max=upper_bound)
 
     def scale(self, scale):
         self.data.radius *= scale
