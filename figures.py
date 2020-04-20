@@ -76,6 +76,9 @@ class Figure:
                 self.data.center[i] = constants.IMAGE_SIZE[i]-rad
             if self.data.center[i] - rad < 0:
                 self.data.center[i] = rad
+    
+    def scale(self, scale):
+        self.data.radius *= scale
 
 
 class Circle(Figure):
@@ -107,9 +110,6 @@ class Circle(Figure):
 
     def draw(self):
         return draw.circle(self.data.center[1], self.data.center[0], self.data.radius)
-
-    def rotate(self, degrees: int):
-        raise NotImplementedError('')
 
     def change_color(self, color: [int, int, int]):
         raise NotImplementedError('')
@@ -148,6 +148,9 @@ class Circle(Figure):
         else:
             radius = randint(min_rad, max_rad)
         return [center, radius]
+    
+    def rotate(self, degrees):
+        pass
 
 
 class Rectangle(Figure):
@@ -156,8 +159,6 @@ class Rectangle(Figure):
     # Necessary data to create rectangle:
     # circumscribed circle and two angles
     class RectangleData(Circle.CircleData):
-        angles: (float, float)
-
         def __init__(self, r: int, c: [int, int], thetas: (float, float)):
             super().__init__(r, c)
             self.angles = thetas
@@ -202,14 +203,15 @@ class Rectangle(Figure):
         vertices_y = [i[1] for i in self.data.vertices()]
         return draw.polygon(vertices_y, vertices_x)
 
-    def rotate(self, degrees: int):
-        raise NotImplementedError('')
-
     def change_color(self, color: (int, int, int)):
         raise NotImplementedError('')
 
     def intersects(self, other: Figure):
         if other.figure_type == FigureType.Circle:
+            new_circle = Circle()
+            new_circle.data = self.data
+            if not new_circle.intersects(other):
+                return False
             vertices = self.data.vertices()
             prev = vertices[0]
             for i in range(1, len(vertices)):
@@ -253,3 +255,7 @@ class Rectangle(Figure):
                     return False
             return True
         return False
+    
+    def rotate(self, degrees):
+        for i in self.data.angles:
+            i += degrees

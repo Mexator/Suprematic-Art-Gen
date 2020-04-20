@@ -51,7 +51,10 @@ for item in gen:
         best = item
         best_fitness = item.fitness_val
 
-print(best.fitness(verbose=True))
+constants.VERBOSE_MODE = True
+print(best.fitness())
+constants.VERBOSE_MODE = False
+
 
 img1 = best.draw_unit_on(unit.BLANK_IMAGE)
 img2 = unit.TARGET_IMAGE
