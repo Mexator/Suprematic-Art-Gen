@@ -1,16 +1,19 @@
 """Contains preprocessing functions"""
 import numpy as np
 import cv2
-def rgba2rgb(rgba, background=(255, 255, 255)):
-    """Converts image with alpha channel to rgb"""
-    row, col, ch = rgba.shape
 
-    if ch == 3:
+
+def rgba2rgb(rgba: np.array, background=(255, 255, 255))->np.array:
+    """Converts image with alpha channel to rgb"""
+    # https://stackoverflow.com/questions/50331463/convert-rgba-to-rgb-in-python
+    row, column, channel = rgba.shape
+
+    if channel == 3:
         return rgba
 
-    assert ch == 4, 'RGBA image has 4 channels.'
+    assert channel == 4, 'RGBA image has 4 channels.'
 
-    rgb = np.zeros((row, col, 3), dtype='float32')
+    rgb = np.zeros((row, column, 3), dtype='float32')
     r, g, b, a = rgba[:, :, 0], rgba[:, :, 1], rgba[:, :, 2], rgba[:, :, 3]
 
     a = np.asarray(a, dtype='float32') / 255.0
@@ -23,7 +26,8 @@ def rgba2rgb(rgba, background=(255, 255, 255)):
 
     return np.asarray(rgb, dtype='uint8')
 
-def get_dominant_color(image):
+
+def get_dominant_color(image:np.array)->np.array:
     """Returns dominant color of image"""
     # https://stackoverflow.com/questions/43111029/how-to-find-the-average-colour-of-an-image-in-python-with-opencv
     pixels = np.float32(image.reshape(-1, 3))
@@ -36,5 +40,6 @@ def get_dominant_color(image):
 
     return np.uint8(palette[np.argmax(counts)])
 
-def get_blank(color):
+
+def get_blank(color:list)->np.array:
     return np.full((512, 512, 3), color)
