@@ -5,6 +5,7 @@ from random import randint
 import numpy as np
 import figures
 import geometry_helper_functions as geo
+import fitness_helper_functions as fit
 import constants
 
 class Unit:
@@ -145,7 +146,7 @@ class Unit:
             for j in range(i+1, len(self.figures)):
                 if self.figures[i].intersects(self.figures[j]):
                     figure_intersection_fitness += 1
-                    contrast_fitness += figures.Figure.color_difference(
+                    contrast_fitness += fit.color_difference(
                         self.figures[i].data.color, self.figures[j].data.color)
 
         if(figure_intersection_fitness > 0):
@@ -188,7 +189,7 @@ class Unit:
         # Contrast with bg
         bg_contrast_fitness = 0
         for fig in self.figures:
-            bg_contrast_fitness += figures.Figure.color_difference(
+            bg_contrast_fitness += fit.color_difference(
                 Unit.CANVAS[0][0], fig.data.color
             )
         bg_contrast_fitness /= Unit.MAX_CONTRAST

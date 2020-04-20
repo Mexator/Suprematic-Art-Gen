@@ -37,14 +37,6 @@ class Figure:
     def __init__(self):
         self.data = None
 
-    @staticmethod
-    def color_difference(col1, col2):
-        """Returns contrast metric of two colors"""
-        col1 = col1.astype(int)
-        col2 = col2.astype(int)
-        color_diff = [abs(i) for i in col1 - col2]
-        return np.linalg.norm(color_diff)
-
     def inside(self, point: [int, int]):
         vertices = self.data.vertices()
         prev = vertices[0]
