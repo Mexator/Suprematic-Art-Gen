@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 
 
-def rgba2rgb(rgba: np.array, background=(255, 255, 255))->np.array:
+def rgba2rgb(rgba: np.array, background=(255, 255, 255)) -> np.array:
     """Converts image with alpha channel to rgb"""
     # https://stackoverflow.com/questions/50331463/convert-rgba-to-rgb-in-python
     row, column, channel = rgba.shape
@@ -27,7 +27,7 @@ def rgba2rgb(rgba: np.array, background=(255, 255, 255))->np.array:
     return np.asarray(rgb, dtype='uint8')
 
 
-def get_dominant_color(image:np.array)->np.array:
+def get_dominant_color(image: np.array) -> np.array:
     """Returns dominant color of image"""
     # https://stackoverflow.com/questions/43111029/how-to-find-the-average-colour-of-an-image-in-python-with-opencv
     pixels = np.float32(image.reshape(-1, 3))
@@ -41,5 +41,5 @@ def get_dominant_color(image:np.array)->np.array:
     return np.uint8(palette[np.argmax(counts)])
 
 
-def get_blank(color:list)->np.array:
+def get_blank(color: list) -> np.array:
     return np.full((512, 512, 3), color)

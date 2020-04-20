@@ -18,7 +18,8 @@ rand.seed(SEED)
 # Read image
 TARGET_IMAGE = preprocessing.rgba2rgb(io.imread(constants.INPUT_IMG_NAME))
 # Create canvas
-BLANK_IMAGE = preprocessing.get_blank(preprocessing.get_dominant_color(TARGET_IMAGE))
+BLANK_IMAGE = preprocessing.get_blank(
+    preprocessing.get_dominant_color(TARGET_IMAGE))
 # Setup unit class
 Unit.setup_conditions(TARGET_IMAGE, BLANK_IMAGE)
 

@@ -8,6 +8,7 @@ import geometry_helper_functions as geo
 import fitness_helper_functions as fit
 import constants
 
+
 class Unit:
     """Selection Unit that is represented by "z-buffer" of figures.\\
     Each figure is one of the figure types defined in module figure"""
@@ -17,7 +18,7 @@ class Unit:
         Unit.TARGET = target
         Unit.CANVAS = canvas
         Unit.MAX_PIX_DIF = max(np.sum(target - canvas),
-                  np.sum(np.invert(target) - canvas))
+                               np.sum(np.invert(target) - canvas))
         Unit.MAX_CONTRAST = np.linalg.norm([255, 255, 255])
 
         Unit.OPTIMAL_NUMBER = 7
@@ -63,7 +64,7 @@ class Unit:
         figures_pool = deepcopy(self.figures) + deepcopy(other.figures)
         rand.shuffle(figures_pool)
         for figure in figures_pool:
-            figure.translate([randint(-20, 20) for i in range(0,2)])
+            figure.translate([randint(-20, 20) for i in range(0, 2)])
 
         # Each child receives equal share of parents' figures
         # i.e 1st child receives figures from 0th to (figures_number / children_number)
@@ -160,7 +161,8 @@ class Unit:
         # According to Wikipedia
         # https://en.wikipedia.org/wiki/Complete_graph
         if max_figure_intersection_fitness > 1:
-            figure_intersection_fitness /= (max_figure_intersection_fitness / 2) 
+            figure_intersection_fitness /= (
+                max_figure_intersection_fitness / 2)
         figure_intersection_fitness = min(figure_intersection_fitness, 1)
 
         approx_fitness = 1 - np.sum(
@@ -181,7 +183,7 @@ class Unit:
         spreading_fitness = 0
         for fig in self.figures:
             spreading_fitness += geo.distance(Unit.CENTER_POINT,
-                                                         fig.data.center)
+                                              fig.data.center)
         spreading_fitness /= len(self.figures)
         spreading_fitness /= Unit.MAX_CENTER_DIST
         spreading_fitness = 1 - spreading_fitness

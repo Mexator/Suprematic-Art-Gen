@@ -1,4 +1,4 @@
-"""Suprematism figures, and functions that help found fitness"""
+"""Suprematism figures classes"""
 import copy
 import random as rand
 from random import randint
@@ -37,28 +37,13 @@ class Figure:
     def __init__(self):
         self.data = None
 
-    def inside(self, point: [int, int]):
+    def inside(self, point: [int, int]) -> bool:
         vertices = self.data.vertices()
-        prev = vertices[0]
-        area_external_pt = 0
-        for i in range(len(vertices)):
-            cur = vertices[i]
-            area_external_pt += geo.triangle_area(prev, cur, point)
-            prev = cur
-        area_external_pt += geo.triangle_area(
-            vertices[0], vertices[-1], point)
 
-        area_internal_pt = 0
-        internal_pt = vertices[0]
-        prev = vertices[0]
-        for i in range(1, len(vertices[0])):
-            cur = vertices[i]
-            area_internal_pt += geo.triangle_area(prev, cur, internal_pt)
-            prev = cur
-        area_internal_pt += geo.triangle_area(
-            vertices[0], vertices[-1], internal_pt)
+        polygon_area = geo.pivotal_area(vertices)
+        area_from_external_point = geo.pivotal_area(vertices, point)
 
-        return (area_external_pt - area_internal_pt) < 1e-5
+        return abs(polygon_area - area_from_external_point) < 1e-5
 
     def translate(self, translation_vector):
         self.data.center += np.asarray(translation_vector)

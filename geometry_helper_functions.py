@@ -74,3 +74,18 @@ def line_segments_intersection(seg1: [[int, int], [int, int]],
     t = (o_1-o_2).dot(d1_ort)
     t /= tmp
     return 0 < s < 1 and 0 < t < 1
+
+
+def pivotal_area(vertices: list, point: [int, int] = None) -> float:
+    """Returns sum of areas of triangles given by pivotal point, and 
+    edges of polygon"""
+    area = 0
+    if point is None:
+        point = vertices[0]
+    previous_vertex = vertices[0]
+    for i in range(1, len(vertices[0])):
+        current_vertex = vertices[i]
+        area += triangle_area(previous_vertex, current_vertex, point)
+        previous_vertex = current_vertex
+    area += triangle_area(vertices[0], vertices[-1], point)
+    return area
