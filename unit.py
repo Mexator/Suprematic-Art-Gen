@@ -130,7 +130,7 @@ class Unit:
         elif action == 4:
             f = rand.randint(0, len(ret.figures)-1)
             ret.figures[f].translate([randint(-30, 30), randint(-30, 30)])
-        ret.fitness_val = ret.fitness(verbose=True)
+        ret.fitness_val = ret.fitness()
         return ret
 
     OPTIMAL_NUMBER = 7
@@ -158,23 +158,33 @@ class Unit:
             self.figures.remove(item)
 
         # Numer of figures closer to optimal - the better
-        # figure_number_fitness = 1 / \
-        #     (abs(len(self.figures)-Unit.OPTIMAL_NUMBER)+1)
         figure_number_fitness = 1 - abs(
             len(self.figures)-Unit.OPTIMAL_NUMBER)/Unit.OPTIMAL_NUMBER
 
         # More intersections - the better
+        # AND
+        # Contrast between intersecting figures
+        contrast_fitness = 0
         figure_intersection_fitness = 0
         for i in range(0, len(self.figures)):
             for j in range(i+1, len(self.figures)):
-                figure_intersection_fitness += self.figures[i].intersects(
-                    self.figures[j])
+                if self.figures[i].intersects(self.figures[j]):
+                    figure_intersection_fitness += 1
+                    contrast_fitness += figures.Figure.color_difference(
+                        self.figures[i].data.color, self.figures[j].data.color)
+
+        if(figure_intersection_fitness > 0):
+            contrast_fitness /= figure_intersection_fitness
+            contrast_fitness /= MAX_CONTRAST
+        else:
+            contrast_fitness = 1
+
         max_figure_intersection_fitness = len(
-            self.figures)*(len(self.figures) - 1)/(2*2)
+            self.figures)*(len(self.figures) - 1)/2
         # According to Wikipedia
         # https://en.wikipedia.org/wiki/Complete_graph
         if max_figure_intersection_fitness > 1:
-            figure_intersection_fitness /= max_figure_intersection_fitness
+            figure_intersection_fitness /= (max_figure_intersection_fitness / 2) 
         figure_intersection_fitness = min(figure_intersection_fitness, 1)
 
         approx_fitness = 1 - np.sum(
@@ -200,19 +210,32 @@ class Unit:
         spreading_fitness /= Unit.MAX_CENTER_DIST
         spreading_fitness = 1 - spreading_fitness
 
-        # Contrast
-        contrast_fitness = 0
+        # Contrast with bg
+        bg_contrast_fitness = 0
         for fig in self.figures:
             # TODO write color diff function
-            contrast_fitness += figures.Figure.color_difference(
+            bg_contrast_fitness += figures.Figure.color_difference(
                 BLANK_IMAGE[0][0], fig.data.color
             )
-        contrast_fitness /= MAX_CONTRAST
-        contrast_fitness /= len(self.figures)
+        bg_contrast_fitness /= MAX_CONTRAST
+        bg_contrast_fitness /= len(self.figures)
 
-        ret = figure_number_fitness + figure_intersection_fitness
+        # Types should be difference
+        type_count = []
+        for f_type in list(figures.FigureType):
+            count = 0
+            for figure in self.figures:
+                if figure.figure_type == f_type:
+                    count += 1
+            type_count.append(count)
+        ideal_t_c = len(self.figures)/len(list(figures.FigureType))
+        type_count = [abs(i - ideal_t_c)/len(self.figures) for i in type_count]
+        type_fitness = 1 - np.sum(np.asarray(type_count))
+
+        ret = 2 * figure_number_fitness + figure_intersection_fitness
         ret += center_distance_fitness + spreading_fitness
-        ret += contrast_fitness + approx_fitness
+        ret += bg_contrast_fitness + approx_fitness
+        ret += contrast_fitness + type_fitness
 
         if verbose:
             print("figure_number_fitness = ", figure_number_fitness)
@@ -221,7 +244,9 @@ class Unit:
             print("approx_fitness = ", approx_fitness)
             print("center_distance_fitness = ", center_distance_fitness)
             print("spreading_fitness = ", spreading_fitness)
+            print("bg_contrast_fitness = ", bg_contrast_fitness)
             print("contrast_fitness = ", contrast_fitness)
+            print("type_fitness = ", type_fitness)
             print("result = ", ret)
 
         return ret

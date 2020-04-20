@@ -74,6 +74,13 @@ class Figure:
             [p3[0], p3[1], 1]
         ])
         return abs(0.5 * np.linalg.det(char_mat))
+    
+    @staticmethod
+    def color_difference(col1, col2):
+        col1 = col1.astype(int)
+        col2 = col2.astype(int)
+        color_diff = [abs(i) for i in (col1 - col2)]
+        return np.linalg.norm(color_diff)
 
     def inside(self, point: [int, int]):
         vertices = self.data.vertices()
@@ -97,6 +104,15 @@ class Figure:
             vertices[:, 0], vertices[:, -1], internal_pt)
 
         return (area_external_pt - area_internal_pt) < 1e-5
+
+    def translate(self, translation_vector):
+        self.data.center += np.asarray(translation_vector)
+        rad = self.data.radius
+        for i in range(0, len(self.data.center)):
+            if self.data.center[i] + rad > IMAGE_SIZE[i]:
+                self.data.center[i] = IMAGE_SIZE[i]-rad
+            if self.data.center[i] - rad < 0:
+                self.data.center[i] = rad
 
     @staticmethod
     def rotation_matrix(theta):
@@ -161,9 +177,6 @@ class Circle(Figure):
 
     def draw(self):
         return draw.circle(self.data.center[1], self.data.center[0], self.data.radius)
-
-    def translate(self, delta: (int, int)):
-        raise NotImplementedError('')
 
     def rotate(self, degrees: int):
         raise NotImplementedError('')
@@ -253,9 +266,6 @@ class Rectangle(Figure):
     def draw(self):
         vertices_x, vertices_y = self.data.vertices()
         return draw.polygon(vertices_y, vertices_x)
-
-    def translate(self, delta: (int, int)):
-        raise NotImplementedError('')
 
     def rotate(self, degrees: int):
         raise NotImplementedError('')

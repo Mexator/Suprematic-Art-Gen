@@ -36,9 +36,8 @@ for i in range(0, ITERATIONS):
     best2 = sample[-2]
     parents = [best1, best2]
     if(len(gen) > 100):
-        gen = list(filter(sample[0].__ne__, gen))
-        gen = list(filter(sample[1].__ne__, gen))
-        gen = list(filter(sample[2].__ne__, gen))
+        rem = list(sample[0:3])
+        gen = [i for i in gen if i not in rem]
 
     children = parents[0].make_children_with(parents[1])
     for child in children:
@@ -62,4 +61,4 @@ plt.imshow(img1)
 plt.subplot(2, 1, 2)
 plt.imshow(img2)
 plt.show()
-plt.savefig("output/"+str(SEED)+".png")
+plt.savefig("output/"+str(ITERATIONS)+"x"+str(SEED)+".png")
