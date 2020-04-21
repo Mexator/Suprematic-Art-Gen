@@ -80,9 +80,14 @@ class Circle(Figure):
             self.radius = radius
             self.center = center
 
+        def copy(self):
+            return Circle.CircleData(self.radius,
+                                     [i for i in self.center],
+                                     color=self.color[:])
+
     def __init__(self, data: CircleData):
         super().__init__()
-        self.data = copy.deepcopy(data)
+        self.data = data.copy()
         if data is None:
             raise Exception('Data is none')
 
@@ -127,6 +132,9 @@ class Circle(Figure):
         """does nothing, rotation do not make sense for circles"""
         return
 
+    def copy(self):
+        return Circle(self.data.copy())
+
 
 class Rectangle(Figure):
     """Rectangle class"""
@@ -138,8 +146,8 @@ class Rectangle(Figure):
     class RectangleData(Circle.CircleData):
         """Necessary data to create rectangle: circumscribed circle and two angles"""
 
-        def __init__(self, r: int, c: [int, int], thetas: (float, float), color):
-            super().__init__(r, c, color)
+        def __init__(self, radius: int, center: [int, int], thetas: (float, float), color):
+            super().__init__(radius, center, color)
             self.angles = thetas
             self.area_val = None
 
@@ -170,9 +178,13 @@ class Rectangle(Figure):
 
             return np.asarray(ret)
 
+        def copy(self):
+            return Rectangle.RectangleData(self.radius, [i for i in self.center],
+                                           [i for i in self.angles], self.color[:])
+
     def __init__(self, data: RectangleData):
         super().__init__()
-        self.data = copy.deepcopy(data)
+        self.data = data.copy()
         if data is None:
             raise Exception('You should either provide both'
                             'random as false, and data or neither of them')
@@ -240,11 +252,14 @@ class Rectangle(Figure):
         for i in self.data.angles:
             i += degrees
 
+    def copy(self):
+        return Rectangle(self.data.copy())
+
 
 def random_circle(target: np.array, min_rad: int = min(Figure.MIN_SIZE)) -> Circle:
     """creates and returns random circle"""
     center = [randint(1, constants.IMAGE_SIZE[i] - 1) for i in range(0, 2)]
-    color = target[center[0],center[1], :]
+    color = target[center[0], center[1], :]
     tmp = [512 - item for item in center]
     max_rad = min(center + tmp + [i/2 for i in Figure.MAX_SIZE])
     if max_rad < min_rad:

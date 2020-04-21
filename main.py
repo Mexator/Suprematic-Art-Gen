@@ -45,7 +45,7 @@ one_percent = int(constants.ITERATIONS / 100)
 
 for i in range(0, constants.ITERATIONS):
 
-    if i % one_percent == 0 & constants.VERBOSE_MODE:
+    if i % one_percent == 0 and constants.VERBOSE_MODE:
         print(f"{i / one_percent}%")
 
     # If only one unit left - break

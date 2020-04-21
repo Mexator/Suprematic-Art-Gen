@@ -157,5 +157,5 @@ def background_contrast_fitness(figures: List[Figure]):
     for fig in figures:
         difference_sum += color_difference(
             background_color, fig.data.color)
-    average_difference = difference_sum /  len(figures)
+    average_difference = difference_sum / len(figures)
     return average_difference/max_bg_contrast

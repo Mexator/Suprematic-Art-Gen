@@ -1,5 +1,4 @@
 """"Module that represent selection unit of genetic algorithm"""
-from copy import deepcopy
 import random as rand
 from random import randint
 import numpy as np
@@ -44,7 +43,8 @@ class Unit:
         Produce children_number of children
         """
         children = []
-        figures_pool = deepcopy(self.figures) + deepcopy(other.figures)
+        figures_pool = [i.copy() for i in self.figures] + [i.copy()
+                                                           for i in other.figures]
         rand.shuffle(figures_pool)
         for figure in figures_pool:
             figure.translate([randint(-20, 20) for i in range(0, 2)])
@@ -69,7 +69,8 @@ class Unit:
         remove one,
         # TODO [or choose 1 figure and changes it via translation, rotation, and color change]
         """
-        ret = deepcopy(self)
+        ret = Unit()
+        ret.figures = [item.copy() for item in self.figures]
         action = randint(1, 5)
         if action == 1 and len(ret.figures) > 1:
             # Remove random figure
