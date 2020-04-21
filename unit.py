@@ -19,7 +19,6 @@ class Unit:
         Unit.CANVAS = canvas
         Unit.MAX_PIX_DIF = max(np.sum(target - canvas),
                                np.sum(np.invert(target) - canvas))
-        Unit.MAX_CONTRAST = np.linalg.norm([255, 255, 255])
 
         Unit.OPTIMAL_NUMBER = 7
         Unit.MAX_CDF = geo.distance([0, 0], [512, 512])
@@ -121,52 +120,24 @@ class Unit:
 
         Returns floating positive number - the хорошесть of the image, by
         considering its:\n
-        figures number (7 is optimal);\n
+        figures number\n
         number of intersections b/w the figures (more - the better);\n
         degree of similarity with original image (more similar - the better) 
         """
         # Delete invisible figures
-        to_be_removed = []
-        for i in range(len(self.figures)-1, -1, -1):
-            for j in range(i-1, -1, -1):
-                if self.figures[i].covers(self.figures[j]):
-                    to_be_removed.append(self.figures[j])
-        for item in set(to_be_removed):
-            self.figures.remove(item)
+        fit.remove_invisible(self.figures)
 
         # Numer of figures closer to optimal - the better
-        figure_number_fitness = 1 - abs(
-            len(self.figures)-Unit.OPTIMAL_NUMBER)/Unit.OPTIMAL_NUMBER
+        figure_number_fitness = fit.figure_number_fitness(len(self.figures))
 
         # More intersections - the better
         # AND
         # Contrast between intersecting figures
-        contrast_fitness = 0
-        figure_intersection_fitness = 0
-        for i in range(0, len(self.figures)):
-            for j in range(i+1, len(self.figures)):
-                if self.figures[i].intersects(self.figures[j]):
-                    figure_intersection_fitness += 1
-                    contrast_fitness += fit.color_difference(
-                        self.figures[i].data.color, self.figures[j].data.color)
+        figure_intersection_fitness, contrast_fitness = fit.intersections_and_contrast_fitness(
+            self.figures)
 
-        if(figure_intersection_fitness > 0):
-            contrast_fitness /= figure_intersection_fitness
-            contrast_fitness /= Unit.MAX_CONTRAST
-        else:
-            contrast_fitness = 1
-
-        max_figure_intersection_fitness = len(
-            self.figures)*(len(self.figures) - 1)/2
-        # According to Wikipedia
-        # https://en.wikipedia.org/wiki/Complete_graph
-        if max_figure_intersection_fitness > 1:
-            figure_intersection_fitness /= (
-                max_figure_intersection_fitness / 2)
-        figure_intersection_fitness = min(figure_intersection_fitness, 1)
-
-        approx_fitness = 1 - np.sum(
-            Unit.TARGET - self.draw_unit_on(Unit.TARGET)) / Unit.MAX_PIX_DIF
+        approx_fitness = fit.approximation_fitness(
+            self.draw_unit_on(Unit.TARGET), Unit.TARGET)
 
         center_distance_fitness = 0
         for i in range(0, len(self.figures)):
@@ -194,7 +165,7 @@ class Unit:
             bg_contrast_fitness += fit.color_difference(
                 Unit.CANVAS[0][0], fig.data.color
             )
-        bg_contrast_fitness /= Unit.MAX_CONTRAST
+        bg_contrast_fitness /= fit.MAX_COLOR_CONTRAST
         bg_contrast_fitness /= len(self.figures)
 
         # Types should be difference
