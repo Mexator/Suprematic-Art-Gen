@@ -1,4 +1,5 @@
 """"Module that represent selection unit of genetic algorithm"""
+from copy import deepcopy
 import random as rand
 from random import randint
 import numpy as np
@@ -69,8 +70,7 @@ class Unit:
         remove one,
         # TODO [or choose 1 figure and changes it via translation, rotation, and color change]
         """
-        ret = Unit()
-        ret.figures = [item.copy() for item in self.figures]
+        ret = deepcopy(self)
         action = randint(1, 5)
         if action == 1 and len(ret.figures) > 1:
             # Remove random figure
