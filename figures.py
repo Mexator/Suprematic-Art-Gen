@@ -259,7 +259,7 @@ class Rectangle(Figure):
 def random_circle(target: np.array, min_rad: int = min(Figure.MIN_SIZE)) -> Circle:
     """creates and returns random circle"""
     center = [randint(1, constants.IMAGE_SIZE[i] - 1) for i in range(0, 2)]
-    color = target[center[0], center[1], :]
+    color = target[center[1], center[0], :]
     tmp = [512 - item for item in center]
     max_rad = min(center + tmp + [i/2 for i in Figure.MAX_SIZE])
     if max_rad < min_rad:
@@ -275,7 +275,7 @@ def random_rectangle(target: np.array) -> Rectangle:
     circle = random_circle(target, min_rad=50)
     center = circle.data.center
     radius = circle.data.radius
-    color = target[center[0], center[1], :]
+    color = target[center[1], center[0], :]
     angle1 = randint(0, 360)
     angle2 = randint(0, 360)
     if abs(angle1 % 180 - angle2 % 180) < 30:
