@@ -64,8 +64,7 @@ for i in range(0, constants.ITERATIONS):
 
     children = parents[0].make_children_with(parents[1])
     for child in children:
-        mutant = child.mutate()
-        GENERATION.append(mutant)
+        GENERATION.append(child)
 
 BEST = None
 BEST_FITNESS = 0

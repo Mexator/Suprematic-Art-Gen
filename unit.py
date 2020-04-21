@@ -64,43 +64,42 @@ class Unit:
 
     def mutate(self):
         """
-        Represent not in-place mutation
+        Represent in-place mutation
 
         Randomly changes figures - either shuffles them, add new to existing ones,
         remove one,
         # TODO [or choose 1 figure and changes it via translation, rotation, and color change]
         """
-        ret = deepcopy(self)
         action = randint(1, 5)
-        if action == 1 and len(ret.figures) > 1:
+        if action == 1 and len(self.figures) > 1:
             # Remove random figure
-            to_be_removed = rand.choice(ret.figures)
-            ret.figures.remove(to_be_removed)
+            to_be_removed = rand.choice(self.figures)
+            self.figures.remove(to_be_removed)
         elif action == 2:
             # Add random figure
             figure = figures.random_figure(fit.FITNESS_PARAMETERS["TARGET"])
-            ret.figures.append(figure)
+            self.figures.append(figure)
         elif action == 3:
             # Change colors
-            f = rand.randint(0, len(ret.figures)-1)
+            f = rand.randint(0, len(self.figures)-1)
             comp = randint(0, 2)
             add = randint(0, 1)
             if add == 0:
                 add = -1
-            ret.figures[f].data.color[comp] += add * 20
+            self.figures[f].data.color[comp] += add * 20
         elif action == 4:
             # Move figure
-            f = rand.randint(0, len(ret.figures)-1)
-            ret.figures[f].translate([randint(-30, 30), randint(-30, 30)])
+            f = rand.randint(0, len(self.figures)-1)
+            self.figures[f].translate([randint(-30, 30), randint(-30, 30)])
         elif action == 5:
-            f = rand.randint(0, len(ret.figures)-1)
+            f = rand.randint(0, len(self.figures)-1)
             rot = randint(0, 180)
-            ret.figures[f].rotate(rot)
-        ret.fitness_val = ret.fitness()
+            self.figures[f].rotate(rot)
+        self.fitness_val = self.fitness()
 
         # Delete invisible figures
-        fit.remove_invisible(ret.figures)
-        return ret
+        fit.remove_invisible(self.figures)
+        return self
 
     def fitness(self, verbose=False):
         """
