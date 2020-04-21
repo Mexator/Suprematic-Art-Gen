@@ -9,6 +9,7 @@ from unit import Unit
 import unit
 import constants
 import preprocessing
+import fitness_helper_functions as fit
 
 # Set up the random seed to obtain repeatable results for debug
 if constants.SEED is None:
@@ -16,19 +17,42 @@ if constants.SEED is None:
 print("seed: ", constants.SEED, "\n")
 rand.seed(constants.SEED)
 
+print("Input reading and preprocessing: Starting")
+launch_time = time.time()
+
 # Read image
 TARGET_IMAGE = preprocessing.rgba2rgb(io.imread(constants.INPUT_IMG_NAME))
 # Create canvas
 BLANK_IMAGE = preprocessing.get_blank(
     preprocessing.get_dominant_color(TARGET_IMAGE))
-# Setup unit class
-Unit.setup_conditions(TARGET_IMAGE, BLANK_IMAGE)
+
+# Setup fitness function parameters
+fit.setup_fitness_parameters(TARGET_IMAGE, BLANK_IMAGE[0][0])
+
+print("Input reading and preprocessing: Done in",
+      time.time() - launch_time, "sec")
+
+print("Creating initial generation: Starting")
+gen_start = time.time()
 
 GENERATION = [Unit() for _ in range(constants.START_UNITS)]
 
-for _ in range(0, constants.ITERATIONS):
+print("Creating initial generation: Done in",
+      time.time() - gen_start, "sec")
+
+print("Starting evolutionary loop", f"({constants.ITERATIONS} iterations)")
+one_percent = int(constants.ITERATIONS / 100)
+
+for i in range(0, constants.ITERATIONS):
+
+    if i % one_percent == 0 & constants.VERBOSE_MODE:
+        print(f"{i / one_percent}%")
+
+    # If only one unit left - break
     if len(GENERATION) < 2:
         break
+
+    # Choose 10 random units, then 2 best of them
     sample = sorted(rand.sample(GENERATION, min(10, len(GENERATION)-1)),
                     key=unit.unit_comparator_metric)
 

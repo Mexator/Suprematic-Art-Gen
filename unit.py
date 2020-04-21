@@ -12,24 +12,8 @@ import constants
 class Unit:
     """Selection Unit that is represented by "z-buffer" of figures.\\
     Each figure is one of the figure types defined in module figure"""
-    setup_called = False
-    @staticmethod
-    def setup_conditions(target, canvas):
-        Unit.TARGET = target
-        Unit.CANVAS = canvas
-        Unit.MAX_PIX_DIF = max(np.sum(target - canvas),
-                               np.sum(np.invert(target) - canvas))
-
-        Unit.OPTIMAL_NUMBER = 7
-        Unit.MAX_CDF = geo.distance([0, 0], [512, 512])
-        Unit.CENTER_POINT = [len(Unit.TARGET)/2, len(Unit.TARGET[0])/2]
-        Unit.MAX_CENTER_DIST = geo.distance([0, 0], Unit.CENTER_POINT)
-
-        Unit.SETUP_CALLED = True
 
     def __init__(self, parent=None):
-        if not Unit.SETUP_CALLED:
-            raise Exception("Please, setup conditions first")
         self.figures = []
         if parent is None:
             self.generate_figures()
@@ -38,7 +22,7 @@ class Unit:
     def generate_figures(self):
         """Fills self with 10 randomly chosen figures"""
         for _ in range(0, 10):
-            fig = figures.random_figure()
+            fig = figures.random_figure(fit.FITNESS_PARAMETERS["TARGET"])
             self.figures.append(fig)
 
     def draw_unit_on(self, canvas: np.ndarray):
@@ -93,7 +77,7 @@ class Unit:
             ret.figures.remove(to_be_removed)
         elif action == 2:
             # Add random figure
-            figure = figures.random_figure()
+            figure = figures.random_figure(fit.FITNESS_PARAMETERS["TARGET"])
             ret.figures.append(figure)
         elif action == 3:
             # Change colors
@@ -112,86 +96,57 @@ class Unit:
             rot = randint(0, 180)
             ret.figures[f].rotate(rot)
         ret.fitness_val = ret.fitness()
+
+        # Delete invisible figures
+        fit.remove_invisible(ret.figures)
         return ret
 
     def fitness(self, verbose=False):
         """
         Fitness function
 
-        Returns floating positive number - the хорошесть of the image, by
+        Returns floating positive number - the satisfiability metric of the image, by
         considering its:\n
         figures number\n
         number of intersections b/w the figures (more - the better);\n
         degree of similarity with original image (more similar - the better) 
         """
-        # Delete invisible figures
-        fit.remove_invisible(self.figures)
 
-        # Numer of figures closer to optimal - the better
+        # Number of figures closer to optimal - the better
         figure_number_fitness = fit.figure_number_fitness(len(self.figures))
 
         # More intersections - the better
         # AND
         # Contrast between intersecting figures
-        figure_intersection_fitness, contrast_fitness = fit.intersections_and_contrast_fitness(
+        intersection_fitness, contrast_fitness = fit.intersections_and_contrast_fitness(
             self.figures)
 
         approx_fitness = fit.approximation_fitness(
-            self.draw_unit_on(Unit.TARGET), Unit.TARGET)
+            self.draw_unit_on(fit.FITNESS_PARAMETERS["TARGET"]))
 
-        center_distance_fitness = 0
-        for i in range(0, len(self.figures)):
-            for j in range(i+1, len(self.figures)):
-                center_distance_fitness += geo.distance(
-                    self.figures[i].data.center, self.figures[j].data.center
-                )
-        if(center_distance_fitness != 0):
-            center_distance_fitness /= len(self.figures) * \
-                (len(self.figures)-1)/2
-            center_distance_fitness /= Unit.MAX_CDF
+        figure_distance_fitness = fit.figure_distance_fitness(self.figures)
 
-        # average centers closer to image cnter - the better
-        spreading_fitness = 0
-        for fig in self.figures:
-            spreading_fitness += geo.distance(Unit.CENTER_POINT,
-                                              fig.data.center)
-        spreading_fitness /= len(self.figures)
-        spreading_fitness /= Unit.MAX_CENTER_DIST
-        spreading_fitness = 1 - spreading_fitness
+        # average centers closer to image center - the better
+        center_distance_fitness = fit.center_distance_fitness(self.figures)
 
         # Contrast with bg
-        bg_contrast_fitness = 0
-        for fig in self.figures:
-            bg_contrast_fitness += fit.color_difference(
-                Unit.CANVAS[0][0], fig.data.color
-            )
-        bg_contrast_fitness /= fit.MAX_COLOR_CONTRAST
-        bg_contrast_fitness /= len(self.figures)
+        bg_contrast_fitness = fit.background_contrast_fitness(self.figures)
 
-        # Types should be difference
-        type_count = []
-        for f_type in list(figures.FigureType):
-            count = 0
-            for figure in self.figures:
-                if figure.figure_type == f_type:
-                    count += 1
-            type_count.append(count)
-        ideal_t_c = len(self.figures)/len(list(figures.FigureType))
-        type_count = [abs(i - ideal_t_c)/len(self.figures) for i in type_count]
-        type_fitness = 1 - np.sum(np.asarray(type_count))
+        # Types should be different
+        type_fitness = fit.type_fitness(self.figures)
 
-        ret = 2 * figure_number_fitness + figure_intersection_fitness
-        ret += center_distance_fitness + spreading_fitness
+        ret = 2 * figure_number_fitness + intersection_fitness
+        ret += figure_distance_fitness + center_distance_fitness
         ret += bg_contrast_fitness + approx_fitness
         ret += contrast_fitness + type_fitness
 
         if verbose:
             print("figure_number_fitness = ", figure_number_fitness)
             print("figure_intersection_fitness = ",
-                  figure_intersection_fitness)
+                  intersection_fitness)
             print("approx_fitness = ", approx_fitness)
+            print("figure_distance_fitness = ", figure_distance_fitness)
             print("center_distance_fitness = ", center_distance_fitness)
-            print("spreading_fitness = ", spreading_fitness)
             print("bg_contrast_fitness = ", bg_contrast_fitness)
             print("contrast_fitness = ", contrast_fitness)
             print("type_fitness = ", type_fitness)

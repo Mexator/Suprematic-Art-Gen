@@ -23,6 +23,7 @@ class FigureType(Enum):
 class Figure:
     """Base class for figures. Should never be instantiated"""
     MAX_SIZE = [256, 256]
+    MIN_SIZE = [30, 30]
     figure_type = None
 
     class FigureData:
@@ -30,9 +31,7 @@ class Figure:
         color: [int, int, int]
         center: [int, int]
 
-        def __init__(self, color: [int, int, int] = None):
-            if color is None:
-                color = unit.Unit.TARGET[self.center[0], self.center[1], :]
+        def __init__(self, color: [int, int, int]):
             self.color = color
 
     def __init__(self):
@@ -76,10 +75,10 @@ class Circle(Figure):
         radius: int
         center: [int, int]
 
-        def __init__(self, radius: int, center: [int, int]):
+        def __init__(self, radius: int, center: [int, int], color: np.array):
+            super(Circle.CircleData, self).__init__(color)
             self.radius = radius
             self.center = center
-            super(Circle.CircleData, self).__init__()
 
     def __init__(self, data: CircleData):
         super().__init__()
@@ -139,8 +138,8 @@ class Rectangle(Figure):
     class RectangleData(Circle.CircleData):
         """Necessary data to create rectangle: circumscribed circle and two angles"""
 
-        def __init__(self, r: int, c: [int, int], thetas: (float, float)):
-            super().__init__(r, c)
+        def __init__(self, r: int, c: [int, int], thetas: (float, float), color):
+            super().__init__(r, c, color)
             self.angles = thetas
             self.area_val = None
 
@@ -205,10 +204,10 @@ class Rectangle(Figure):
             vertices = other.data.vertices()
             vertices2 = self.data.vertices()
             prev = vertices[-1]
-            for i in range(0, len(vertices[0])):
+            for i in range(0, len(vertices)):
                 edge = [prev, vertices[i]]
                 prev2 = vertices2[-1]
-                for j in range(0, len(vertices2[0])):
+                for j in range(0, len(vertices2)):
                     edge2 = [prev2, vertices2[j]]
                     if geo.line_segments_intersection(edge, edge2):
                         return True
@@ -242,35 +241,37 @@ class Rectangle(Figure):
             i += degrees
 
 
-def random_circle(min_rad: int = 30) -> Circle:
+def random_circle(target: np.array, min_rad: int = min(Figure.MIN_SIZE)) -> Circle:
     """creates and returns random circle"""
     center = [randint(1, constants.IMAGE_SIZE[i] - 1) for i in range(0, 2)]
+    color = target[center[0],center[1], :]
     tmp = [512 - item for item in center]
     max_rad = min(center + tmp + [i/2 for i in Figure.MAX_SIZE])
     if max_rad < min_rad:
-        return random_circle()
+        return random_circle(target, min_rad)
 
     radius = randint(min_rad, max_rad)
-    data = Circle.CircleData(radius, center)
+    data = Circle.CircleData(radius, center, color)
     return Circle(data)
 
 
-def random_rectangle() -> Rectangle:
+def random_rectangle(target: np.array) -> Rectangle:
     """creates and returns random rectangle"""
-    circle = random_circle(min_rad=50)
+    circle = random_circle(target, min_rad=50)
     center = circle.data.center
     radius = circle.data.radius
+    color = target[center[0], center[1], :]
     angle1 = randint(0, 360)
     angle2 = randint(0, 360)
     if abs(angle1 % 180 - angle2 % 180) < 30:
         angle2 = angle1 + 30
-    return Rectangle(Rectangle.RectangleData(radius, center, (angle1, angle2)))
+    return Rectangle(Rectangle.RectangleData(radius, center, (angle1, angle2), color))
 
 
-def random_figure() -> Figure:
+def random_figure(target: np.array) -> Figure:
     """Returns random  suprematism figure"""
     figures_dict = {
-        FigureType.Circle: random_circle(),
-        FigureType.Rectangle: random_rectangle()}
+        FigureType.Circle: random_circle(target),
+        FigureType.Rectangle: random_rectangle(target)}
     _type = rand.choice(list(FigureType))
     return figures_dict[_type]
