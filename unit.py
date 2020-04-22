@@ -93,10 +93,10 @@ class Unit:
             f = rand.randint(0, len(self.figures)-1)
             rot = randint(0, 180)
             self.figures[f].rotate(rot)
-        self.fitness_val = self.fitness()
-
         # Delete invisible figures
         fit.remove_invisible(self.figures)
+
+        self.fitness_val = self.fitness()
         return self
 
     def fitness(self, verbose=False):

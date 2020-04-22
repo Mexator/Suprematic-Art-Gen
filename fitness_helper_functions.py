@@ -90,11 +90,11 @@ def contrast_fitness(figures: List[Figure]):
 
     total = len(figures)*(len(figures) - 1)/2
     # Normalize contrast fitness
-    if total > 0:
+    if total > 1:
         metric /= total
         metric /= MAX_COLOR_CONTRAST
     else:
-        metric = 1
+        metric = 0
 
     return metric
 
@@ -129,7 +129,7 @@ def figure_distance_fitness(figures: List[Figure]):
             radius_sum = figure.data.radius + figures[j].data.radius
             center_distance_sum += min(distance/radius_sum, 1)
 
-    metric = 1
+    metric = 0
     if center_distance_sum:
         number_of_distances = len(figures) * (len(figures)-1) / 2
         metric = center_distance_sum / number_of_distances

@@ -6,7 +6,7 @@ function swap()
     mv "$2" "$1"
     mv $TMPFILE "$2"
 }
-for i in {1..5}
+for i in {1..10}
 do
     swap input/unnamed.png input/unnamed$i.png
     python main.py
