@@ -41,7 +41,7 @@ print("Creating initial generation: Done in",
       time.time() - gen_start, "sec")
 
 print("Starting evolutionary loop", f"({constants.ITERATIONS} iterations)")
-one_percent = int(constants.ITERATIONS / 100)
+one_percent = max(int(constants.ITERATIONS / 100),1)
 
 for i in range(0, constants.ITERATIONS):
 
@@ -59,12 +59,10 @@ for i in range(0, constants.ITERATIONS):
     best1 = sample[-1]
     best2 = sample[-2]
     parents = [best1, best2]
-    rem = list(sample[-1:-2])
+    rem = list(sample[-2:-1])
     GENERATION = [i for i in GENERATION if i not in rem]
-
     children = parents[0].make_children_with(parents[1])
-    for child in children:
-        GENERATION.append(child)
+    GENERATION += children
 
 BEST = None
 BEST_FITNESS = 0

@@ -57,8 +57,8 @@ class Unit:
 
         for i in range(0, children_number):
             child = Unit(parent=self)
-            child.figures += figures_pool[i*share:(i+1)*share]
-            child.fitness_val = child.fitness()
+            child.figures = figures_pool[i*share:(i+1)*share]
+            child.mutate()
             children.append(child)
         return children
 
@@ -68,7 +68,6 @@ class Unit:
 
         Randomly changes figures - either shuffles them, add new to existing ones,
         remove one,
-        # TODO [or choose 1 figure and changes it via translation, rotation, and color change]
         """
         action = randint(1, 5)
         if action == 1 and len(self.figures) > 1:
@@ -82,11 +81,10 @@ class Unit:
         elif action == 3:
             # Change colors
             f = rand.randint(0, len(self.figures)-1)
-            comp = randint(0, 2)
             add = randint(0, 1)
             if add == 0:
                 add = -1
-            self.figures[f].data.color[comp] += add * 20
+            self.figures[f].data.color[:] += np.uint8(add * 10)
         elif action == 4:
             # Move figure
             f = rand.randint(0, len(self.figures)-1)
@@ -118,9 +116,10 @@ class Unit:
         # More intersections - the better
         # AND
         # Contrast between intersecting figures
-        intersection_fitness, contrast_fitness = fit.intersections_and_contrast_fitness(
-            self.figures)
-
+        intersection_fitness = fit.intersection_fitness(self.figures)
+        
+        contrast_fitness = fit.contrast_fitness(self.figures)
+        
         approx_fitness = fit.approximation_fitness(
             self.draw_unit_on(fit.FITNESS_PARAMETERS["TARGET"]))
 
@@ -135,10 +134,10 @@ class Unit:
         # Types should be different
         type_fitness = fit.type_fitness(self.figures)
 
-        ret = 2 * figure_number_fitness + intersection_fitness
-        ret += figure_distance_fitness + center_distance_fitness
-        ret += bg_contrast_fitness + approx_fitness
-        ret += contrast_fitness + type_fitness
+        ret =  2 * figure_number_fitness + intersection_fitness
+        ret += 2 * figure_distance_fitness + center_distance_fitness
+        ret += 2 * bg_contrast_fitness + 2 * approx_fitness
+        ret += 2 * contrast_fitness + type_fitness
 
         if verbose:
             print("figure_number_fitness = ", figure_number_fitness)

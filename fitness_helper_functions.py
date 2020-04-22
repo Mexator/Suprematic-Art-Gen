@@ -58,35 +58,45 @@ def figure_number_fitness(n: int) -> float:
     return 1 - abs(n-optimal)/optimal
 
 
-def intersections_and_contrast_fitness(figures: List[Figure]) -> [float, float]:
+def intersection_fitness(figures: List[Figure]) -> [float, float]:
     """Return pair of two floats [0;1] - metrics of degree of intersection of figures
     and color contrast between intersecting figures"""
     figure_intersection_fitness = 0
-    contrast_fitness = 0
+
     for i, figure in enumerate(figures):
         for j in range(i+1, len(figures)):
             if figure.intersects(figures[j]):
                 figure_intersection_fitness += 1
-                contrast_fitness += color_difference(
-                    figure.data.color, figures[j].data.color)
-
-    # Normalize contrast fitness
-    if figure_intersection_fitness > 0:
-        contrast_fitness /= figure_intersection_fitness
-        contrast_fitness /= MAX_COLOR_CONTRAST
-    else:
-        contrast_fitness = 1
 
     # If we consider figures as nodes, and their intersections as edges then
     # we can use formula for number of nodes in complete graph, that
     # according to Wikipedia is n(n-1)/2
     # https://en.wikipedia.org/wiki/Complete_graph
     max_intersections = len(figures)*(len(figures) - 1)/2
+    max_intersections /= 2
 
     if max_intersections > 1:
         figure_intersection_fitness /= max_intersections
 
-    return [figure_intersection_fitness, contrast_fitness]
+    return min(figure_intersection_fitness,1)
+
+
+def contrast_fitness(figures: List[Figure]):
+    metric = 0
+    for i, figure in enumerate(figures):
+        for j in range(i+1, len(figures)):
+            metric += color_difference(figure.data.color,
+                                       figures[j].data.color)
+
+    total = len(figures)*(len(figures) - 1)/2
+    # Normalize contrast fitness
+    if total > 0:
+        metric /= total
+        metric /= MAX_COLOR_CONTRAST
+    else:
+        metric = 1
+
+    return metric
 
 
 def get_max_pixel_difference(target: np.array):
@@ -115,14 +125,14 @@ def figure_distance_fitness(figures: List[Figure]):
     center_distance_sum = 0
     for i, figure in enumerate(figures):
         for j in range(i+1, len(figures)):
-            center_distance_sum += geo.distance(
-                figure.data.center, figures[j].data.center)
+            distance = geo.distance(figure.data.center, figures[j].data.center)
+            radius_sum = figure.data.radius + figures[j].data.radius
+            center_distance_sum += min(distance/radius_sum, 1)
 
     metric = 1
     if center_distance_sum:
         number_of_distances = len(figures) * (len(figures)-1) / 2
         metric = center_distance_sum / number_of_distances
-        metric /= MAX_CENTER_DISTANCE
 
     return metric
 
@@ -134,8 +144,9 @@ def type_fitness(figures: List[Figure]):
 
     type_count = Counter(types).values()
     ideal_type_count = len(figures)/len(FigureType)
-    type_count = [abs(i - ideal_type_count)/len(figures) for i in type_count]
-    return 1 - sum(type_count)
+    type_count = [abs(i - ideal_type_count) for i in type_count]
+    type_count = [i for i in type_count if i >= 1]
+    return 1 - sum(type_count)/len(figures)
 
 
 def center_distance_fitness(figures: List[Figure]):
