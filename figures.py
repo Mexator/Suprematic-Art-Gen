@@ -95,10 +95,10 @@ class Circle(Figure):
         """check the point to be inside the figure"""
         return geo.distance(self.data.center, point) < self.data.radius
 
-    def draw(self) -> np.ndarray:
+    def draw(self, scale=1) -> np.ndarray:
         """Returns coordinates of circle that can be used for indexing image to
         fill part of it with color of figure"""
-        return draw.circle(self.data.center[1], self.data.center[0], self.data.radius)
+        return draw.circle(self.data.center[1]*scale, self.data.center[0]*scale, self.data.radius*scale)
 
     def intersects(self, other: Figure) -> bool:
         """check 2 figures for intersection"""
@@ -189,11 +189,11 @@ class Rectangle(Figure):
             raise Exception('You should either provide both'
                             'random as false, and data or neither of them')
 
-    def draw(self):
+    def draw(self, scale=1):
         """Returns coordinates of rectangle that can be used for indexing image to
         fill part of it with color of figure"""
-        vertices_x = [i[0] for i in self.data.vertices()]
-        vertices_y = [i[1] for i in self.data.vertices()]
+        vertices_x = [i[0]*scale for i in self.data.vertices()]
+        vertices_y = [i[1]*scale for i in self.data.vertices()]
         return draw.polygon(vertices_y, vertices_x)
 
     def intersects(self, other: Figure):

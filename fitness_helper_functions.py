@@ -150,10 +150,11 @@ def type_fitness(figures: List[Figure]):
 
 
 def center_distance_fitness(figures: List[Figure]):
-    distance_sum = 0
+    distance_sum = np.zeros((2,))
     for fig in figures:
-        distance_sum += geo.distance(CENTER_POINT, fig.data.center)
-    average_distance = distance_sum / len(figures)
+        distance_sum += (CENTER_POINT - fig.data.center)
+    dist_norm = np.linalg.norm(distance_sum)
+    average_distance = dist_norm / len(figures)
     metric = average_distance / MAX_CENTER_DISTANCE
     return 1 - metric
 

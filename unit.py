@@ -25,16 +25,18 @@ class Unit:
             fig = figures.random_figure(fit.FITNESS_PARAMETERS["TARGET"])
             self.figures.append(fig)
 
-    def draw_unit_on(self, canvas: np.ndarray):
+    def draw_unit_on(self, canvas: np.ndarray, scale=1):
         """
         Draw all figures of the current unit at the canvas
 
         Fill pixels of canvas with color of each figure. Last figures overlap
         first ones
         """
-        canvas = canvas.copy()
+        width, height, _ = (canvas.shape)
+        new_shape = (width * scale, height * scale, 3)
+        canvas = np.resize(canvas.copy(), new_shape)
         for figure in self.figures:
-            canvas[figure.draw()] = figure.data.color
+            canvas[figure.draw(scale)] = figure.data.color
         return canvas
 
     def make_children_with(self, other, children_number=2):
@@ -117,9 +119,9 @@ class Unit:
         # AND
         # Contrast between intersecting figures
         intersection_fitness = fit.intersection_fitness(self.figures)
-        
+
         contrast_fitness = fit.contrast_fitness(self.figures)
-        
+
         approx_fitness = fit.approximation_fitness(
             self.draw_unit_on(fit.FITNESS_PARAMETERS["TARGET"]))
 
@@ -134,7 +136,7 @@ class Unit:
         # Types should be different
         type_fitness = fit.type_fitness(self.figures)
 
-        ret =  2 * figure_number_fitness + intersection_fitness
+        ret = 2 * figure_number_fitness + intersection_fitness
         ret += 2 * figure_distance_fitness + center_distance_fitness
         ret += 2 * bg_contrast_fitness + 2 * approx_fitness
         ret += 2 * contrast_fitness + type_fitness

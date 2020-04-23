@@ -2,7 +2,7 @@
 import random as rand
 import time
 
-from skimage import io
+from skimage import io, transform
 import matplotlib.pyplot as plt
 
 from unit import Unit
@@ -53,7 +53,7 @@ for i in range(0, constants.ITERATIONS):
         break
 
     # Choose 10 random units, then 2 best of them
-    sample = sorted(rand.sample(GENERATION, min(10, len(GENERATION)-1)),
+    sample = sorted(rand.sample(GENERATION, min(10, len(GENERATION))),
                     key=unit.unit_comparator_metric)
 
     best1 = sample[-1]
@@ -62,8 +62,12 @@ for i in range(0, constants.ITERATIONS):
     rem = list(sample[-2:-1])
     GENERATION = [i for i in GENERATION if i not in rem]
     children = parents[0].make_children_with(parents[1])
-    GENERATION += children
+    
+    to_be_removed = [best1,best2] + children
+    to_be_removed = sorted(to_be_removed, key = unit.unit_comparator_metric)
 
+    GENERATION = [item for item in GENERATION if item not in to_be_removed]
+    GENERATION += to_be_removed[-3: -1]
 BEST = None
 BEST_FITNESS = 0
 for item in GENERATION:
@@ -74,11 +78,17 @@ for item in GENERATION:
 print(BEST.fitness(verbose=True))
 
 DPI = 80
-plt.gcf().set_size_inches(1024/DPI, 512/DPI)
+drawn = BEST.draw_unit_on(BLANK_IMAGE, scale=2)
+drawn = transform.resize(drawn,(512,512), anti_aliasing=True)
+
+plt.gcf().set_size_inches(2048/DPI, 1024/DPI)
 plt.subplot(1, 2, 1)
-plt.imshow(BEST.draw_unit_on(BLANK_IMAGE))
+plt.imshow(drawn)
 plt.subplot(1, 2, 2)
 plt.imshow(TARGET_IMAGE)
-plt.savefig("output/"+str(constants.ITERATIONS)+"x"+str(constants.SEED)+".png")
+plt.savefig("output/combined/"+str(constants.ITERATIONS)+"x"+str(constants.SEED)+".png")
+
+
+io.imsave("output/"+str(constants.ITERATIONS)+"x"+str(constants.SEED)+".png",drawn)
 if constants.SHOW_RESULT:
     plt.show()
