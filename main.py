@@ -55,18 +55,14 @@ for i in range(0, constants.ITERATIONS):
     # Choose 10 random units, then 2 best of them
     sample = sorted(rand.sample(GENERATION, min(10, len(GENERATION))),
                     key=unit.unit_comparator_metric)
+    parents = rand.choices(sample,[u.fitness_val for u in sample], k=2)
 
-    best1 = sample[-1]
-    best2 = sample[-2]
-    parents = [best1, best2]
-    rem = list(sample[-2:-1])
-    GENERATION = [i for i in GENERATION if i not in rem]
+    GENERATION = [i for i in GENERATION if i not in parents]
     children = parents[0].make_children_with(parents[1])
     
-    to_be_removed = [best1,best2] + children
+    to_be_removed = parents + children
     to_be_removed = sorted(to_be_removed, key = unit.unit_comparator_metric)
 
-    GENERATION = [item for item in GENERATION if item not in to_be_removed]
     GENERATION += to_be_removed[-3: -1]
 BEST = None
 BEST_FITNESS = 0
