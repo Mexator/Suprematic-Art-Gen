@@ -123,7 +123,7 @@ class Unit:
         contrast_fitness = fit.contrast_fitness(self.figures)
 
         approx_fitness = fit.approximation_fitness(
-            self.draw_unit_on(fit.FITNESS_PARAMETERS["TARGET"],scale=0.5))
+            self.draw_unit_on(fit.FITNESS_PARAMETERS["TARGET"], scale=0.5))
 
         figure_distance_fitness = fit.figure_distance_fitness(self.figures)
 
@@ -136,21 +136,39 @@ class Unit:
         # Types should be different
         type_fitness = fit.type_fitness(self.figures)
 
-        ret = 2 * figure_number_fitness + intersection_fitness
-        ret += 2 * figure_distance_fitness + center_distance_fitness
-        ret += 2 * bg_contrast_fitness + 2 * approx_fitness
-        ret += 2 * contrast_fitness + type_fitness
+        fitness_vector = [
+            figure_number_fitness,
+            intersection_fitness,
+            figure_distance_fitness,
+            center_distance_fitness,
+            bg_contrast_fitness,
+            approx_fitness,
+            contrast_fitness,
+            type_fitness
+        ]
+        weights = [
+            2,
+            1,
+            2,
+            1,
+            2,
+            2,
+            2,
+            1
+        ]
+        weights = np.asarray(weights, dtype=np.float64)
+        weights *= 1/np.linalg.norm(weights)
+        ret = np.linalg.norm([item * weights[i] for i, item in enumerate(fitness_vector)])
 
         if verbose:
-            print("figure_number_fitness = ", figure_number_fitness)
-            print("figure_intersection_fitness = ",
-                  intersection_fitness)
-            print("approx_fitness = ", approx_fitness)
-            print("figure_distance_fitness = ", figure_distance_fitness)
-            print("center_distance_fitness = ", center_distance_fitness)
-            print("bg_contrast_fitness = ", bg_contrast_fitness)
-            print("contrast_fitness = ", contrast_fitness)
-            print("type_fitness = ", type_fitness)
+            print("figure_number_fitness ="  , figure_number_fitness,   "weight =", weights[0])
+            print("intersection_fitness ="   , intersection_fitness,    "weight =", weights[1])
+            print("figure_distance_fitness =", figure_distance_fitness, "weight =", weights[2])
+            print("center_distance_fitness =", center_distance_fitness, "weight =", weights[3])
+            print("bg_contrast_fitness ="    , bg_contrast_fitness,     "weight =", weights[4])
+            print("approx_fitness ="         , approx_fitness,          "weight =", weights[5])
+            print("contrast_fitness ="       , contrast_fitness,        "weight =", weights[6])
+            print("type_fitness ="           , type_fitness,            "weight =", weights[7])
             print("result = ", ret)
 
         return ret
