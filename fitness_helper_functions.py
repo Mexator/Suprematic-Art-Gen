@@ -2,6 +2,7 @@
 import numpy as np
 from typing import List
 from collections import Counter
+from skimage import transform 
 
 from figures import Figure, FigureType
 import geometry_helper_functions as geo
@@ -110,6 +111,7 @@ def approximation_fitness(rendered: np.array):
             (not "MAX_PIXEL_DIFFERENCE" in FITNESS_PARAMETERS):
         raise NO_SETUP_EXCEPTION
     target = FITNESS_PARAMETERS["TARGET"]
+    target = transform.resize(target, rendered.shape, anti_aliasing=False)
     max_pixel_difference = FITNESS_PARAMETERS["MAX_PIXEL_DIFFERENCE"]
     # approx_fitness = 1 - np.sum(
     # Unit.TARGET - self.draw_unit_on(Unit.TARGET)) / Unit.MAX_PIX_DIF

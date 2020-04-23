@@ -33,7 +33,7 @@ class Unit:
         first ones
         """
         width, height, _ = (canvas.shape)
-        new_shape = (width * scale, height * scale, 3)
+        new_shape = (int(width * scale), int(height * scale), 3)
         canvas = np.resize(canvas.copy(), new_shape)
         for figure in self.figures:
             canvas[figure.draw(scale)] = figure.data.color
@@ -123,7 +123,7 @@ class Unit:
         contrast_fitness = fit.contrast_fitness(self.figures)
 
         approx_fitness = fit.approximation_fitness(
-            self.draw_unit_on(fit.FITNESS_PARAMETERS["TARGET"]))
+            self.draw_unit_on(fit.FITNESS_PARAMETERS["TARGET"],scale=0.5))
 
         figure_distance_fitness = fit.figure_distance_fitness(self.figures)
 
