@@ -10,7 +10,7 @@ import unit
 import constants
 import preprocessing
 import fitness_helper_functions as fit
-
+import cv2 as cv
 # Set up the random seed to obtain repeatable results for debug
 if constants.SEED is None:
     constants.SEED = int(time.time())
@@ -21,7 +21,11 @@ print("Input reading and preprocessing: Starting")
 launch_time = time.time()
 
 # Read image
-TARGET_IMAGE = preprocessing.rgba2rgb(io.imread(constants.INPUT_IMG_NAME))
+image = cv.imread(constants.INPUT_IMG_NAME,cv.IMREAD_UNCHANGED)
+image = cv.resize(image,(512,512))
+image = cv.cvtColor(image,cv.COLOR_BGR2RGB)
+
+TARGET_IMAGE = preprocessing.rgba2rgb(image)
 # Create canvas
 BLANK_IMAGE = preprocessing.get_blank(
     preprocessing.get_dominant_color(TARGET_IMAGE))
@@ -53,9 +57,11 @@ for i in range(0, constants.ITERATIONS):
         break
 
     # Choose 10 random units, then 2 best of them
-    sample = sorted(rand.sample(GENERATION, min(10, len(GENERATION))),
-                    key=unit.unit_comparator_metric)
-    parents = rand.choices(sample,[u.fitness_val for u in sample], k=2)
+    sample = rand.sample(GENERATION, min(10, len(GENERATION)))
+
+    parents = rand.choices(sample,[u.fitness_val for u in sample], k=1)
+    sample.remove(parents[0])
+    parents += rand.choices(sample,[u.fitness_val for u in sample], k=1)
 
     GENERATION = [i for i in GENERATION if i not in parents]
     children = parents[0].make_children_with(parents[1])
@@ -63,7 +69,7 @@ for i in range(0, constants.ITERATIONS):
     to_be_removed = parents + children
     to_be_removed = sorted(to_be_removed, key = unit.unit_comparator_metric)
 
-    GENERATION += to_be_removed[-3: -1]
+    GENERATION += to_be_removed[-2: ]
 BEST = None
 BEST_FITNESS = 0
 for item in GENERATION:

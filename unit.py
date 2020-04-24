@@ -59,7 +59,12 @@ class Unit:
 
         for i in range(0, children_number):
             child = Unit(parent=self)
-            child.figures = figures_pool[i*share:(i+1)*share]
+
+            if(i == children_number-1):
+                child.figures = figures_pool[i*share:]
+            else:
+                child.figures = figures_pool[i*share:(i+1)*share]
+
             child.mutate()
             children.append(child)
         return children
@@ -158,17 +163,26 @@ class Unit:
         ]
         weights = np.asarray(weights, dtype=np.float64)
         weights *= 1/np.linalg.norm(weights)
-        ret = np.linalg.norm([item * weights[i] for i, item in enumerate(fitness_vector)])
+        ret = np.linalg.norm([item * weights[i]
+                              for i, item in enumerate(fitness_vector)])
 
         if verbose:
-            print("figure_number_fitness ="  , figure_number_fitness,   "weight =", weights[0])
-            print("intersection_fitness ="   , intersection_fitness,    "weight =", weights[1])
-            print("figure_distance_fitness =", figure_distance_fitness, "weight =", weights[2])
-            print("center_distance_fitness =", center_distance_fitness, "weight =", weights[3])
-            print("bg_contrast_fitness ="    , bg_contrast_fitness,     "weight =", weights[4])
-            print("approx_fitness ="         , approx_fitness,          "weight =", weights[5])
-            print("contrast_fitness ="       , contrast_fitness,        "weight =", weights[6])
-            print("type_fitness ="           , type_fitness,            "weight =", weights[7])
+            print("figure_number_fitness =",
+                  figure_number_fitness,   "weight =", weights[0])
+            print("intersection_fitness =",
+                  intersection_fitness,    "weight =", weights[1])
+            print("figure_distance_fitness =",
+                  figure_distance_fitness, "weight =", weights[2])
+            print("center_distance_fitness =",
+                  center_distance_fitness, "weight =", weights[3])
+            print("bg_contrast_fitness =", bg_contrast_fitness,
+                  "weight =", weights[4])
+            print("approx_fitness =", approx_fitness,
+                  "weight =", weights[5])
+            print("contrast_fitness =", contrast_fitness,
+                  "weight =", weights[6])
+            print("type_fitness =", type_fitness,
+                  "weight =", weights[7])
             print("result = ", ret)
 
         return ret
