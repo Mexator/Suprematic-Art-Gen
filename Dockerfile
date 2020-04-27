@@ -6,8 +6,8 @@ COPY requirements.txt ./
 
 RUN pip install -r requirements.txt
 
-COPY *.py /app
-COPY launch.sh /app
+COPY *.py /app/
+COPY launch.sh /app/
 COPY input /app/input
 
 CMD [ "bash", "launch.sh" ]
