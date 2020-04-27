@@ -76,7 +76,7 @@ class Unit:
         Randomly changes figures - either shuffles them, add new to existing ones,
         remove one,
         """
-        action = randint(1, 6)
+        action = randint(1, 7)
         if action == 1 and len(self.figures) > 1:
             # Remove random figure
             to_be_removed = rand.choice(self.figures)
@@ -97,11 +97,20 @@ class Unit:
             f = rand.randint(0, len(self.figures)-1)
             self.figures[f].translate([randint(-30, 30), randint(-30, 30)])
         elif action == 5:
+            # Rotate figure
             f = rand.randint(0, len(self.figures)-1)
             rot = randint(0, 180)
             self.figures[f].rotate(rot)
         elif action == 6:
             rand.shuffle(self.figures)
+        elif action == 7:
+            # Scale figure
+            f = rand.randint(0, len(self.figures)-1)
+            add = randint(0, 1)
+            if add == 0:
+                add = -1
+            delta = add*50
+            self.figures[f].delta_scale(delta)
         # Delete invisible figures
         fit.remove_invisible(self.figures)
 
@@ -162,7 +171,7 @@ class Unit:
             2,
             1,
             2,
-            2,
+            1,
             2,
             1
         ]

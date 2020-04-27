@@ -55,6 +55,13 @@ class Figure:
         self.data.center = np.clip(
             self.data.center, a_min=lower_bound, a_max=upper_bound)
 
+    def delta_scale(self, delta:float):
+        tmp = [512 - item for item in self.data.center]
+        max_rad = min(list(self.data.center) + tmp + [i/2 for i in Figure.MAX_SIZE])
+        self.data.radius += delta
+        self.data.radius = min(self.data.radius,max_rad-1)
+        self.data.radius = max(self.data.radius,Figure.MIN_SIZE[0])    
+
     def scale(self, scale: float) -> None:
         """Scales figure by scale times. Clips it to max size, if new size is too large"""
         center = self.data.center
@@ -179,8 +186,8 @@ class Rectangle(Figure):
             return np.asarray(ret)
 
         def copy(self):
-            return Rectangle.RectangleData(self.radius, [i for i in self.center],
-                                           [i for i in self.angles], self.color[:])
+            return Rectangle.RectangleData(self.radius, copy(self.center),
+                                           copy(self.angles), np.copy(self.color))
 
     def __init__(self, data: RectangleData):
         super().__init__()
@@ -249,8 +256,10 @@ class Rectangle(Figure):
 
     def rotate(self, degrees: int):
         """rotates self around center on degrees degrees"""
-        for i in self.data.angles:
-            i += degrees
+        ang = ((i + degrees)%360 for i in self.data.angles)
+        ang = tuple(ang)
+        self.data.angles = ang
+    
 
     def copy(self):
         return Rectangle(self.data.copy())

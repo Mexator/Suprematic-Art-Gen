@@ -1,7 +1,7 @@
 __pycache__
 .vscode
-report/report*
-!report/report*.tex
+report/*
+report/*.tex
 !input/*
 output/*
 .venv

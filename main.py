@@ -32,7 +32,7 @@ BLANK_IMAGE = preprocessing.get_blank(
 
 # Setup fitness function parameters
 fit.setup_fitness_parameters(TARGET_IMAGE, BLANK_IMAGE[0][0], BLANK_IMAGE, 
-optimal_figures_number=50)
+optimal_figures_number=10)
 
 print("Input reading and preprocessing: Done in",
       time.time() - launch_time, "sec")
@@ -58,11 +58,12 @@ for i in range(0, constants.ITERATIONS):
         break
 
     # Choose 10 random units, then 2 best of them
-    sample = rand.sample(GENERATION, min(10, len(GENERATION)))
+    # sample = rand.sample(GENERATION, min(10, len(GENERATION)))
 
-    parents = rand.choices(sample,[u.fitness_val for u in sample], k=1)
-    sample.remove(parents[0])
-    parents += rand.choices(sample,[u.fitness_val for u in sample], k=1)
+    parents = rand.choices(GENERATION,[u.fitness_val for u in GENERATION], k=1)
+    GENERATION.remove(parents[0])
+    parents += rand.choices(GENERATION,[u.fitness_val for u in GENERATION], k=1)
+    GENERATION.remove(parents[1])
 
     GENERATION = [i for i in GENERATION if i not in parents]
     children = parents[0].make_children_with(parents[1])
