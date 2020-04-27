@@ -1,6 +1,7 @@
 """Main module of program"""
 import random as rand
 import time
+from pathlib import Path
 
 from skimage import io, transform
 import matplotlib.pyplot as plt
@@ -24,6 +25,9 @@ launch_time = time.time()
 image = cv.imread(constants.INPUT_IMG_NAME,cv.IMREAD_UNCHANGED)
 image = cv.resize(image,(512,512))
 image = cv.cvtColor(image,cv.COLOR_BGR2RGB)
+
+# Create directories for output
+Path("output/combined").mkdir(parents=True, exist_ok=True)
 
 TARGET_IMAGE = preprocessing.rgba2rgb(image)
 # Create canvas
