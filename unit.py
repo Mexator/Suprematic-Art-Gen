@@ -7,7 +7,7 @@ import figures
 import geometry_helper_functions as geo
 import fitness_helper_functions as fit
 import constants
-
+import preprocessing
 
 class Unit:
     """Selection Unit that is represented by "z-buffer" of figures.\\
@@ -76,7 +76,7 @@ class Unit:
         Randomly changes figures - either shuffles them, add new to existing ones,
         remove one,
         """
-        action = randint(1, 5)
+        action = randint(1, 6)
         if action == 1 and len(self.figures) > 1:
             # Remove random figure
             to_be_removed = rand.choice(self.figures)
@@ -100,6 +100,8 @@ class Unit:
             f = rand.randint(0, len(self.figures)-1)
             rot = randint(0, 180)
             self.figures[f].rotate(rot)
+        elif action == 6:
+            rand.shuffle(self.figures)
         # Delete invisible figures
         fit.remove_invisible(self.figures)
 
@@ -127,8 +129,11 @@ class Unit:
 
         contrast_fitness = fit.contrast_fitness(self.figures)
 
+        canvas = preprocessing.get_blank(
+            preprocessing.get_dominant_color(
+                fit.FITNESS_PARAMETERS["TARGET"]))
         approx_fitness = fit.approximation_fitness(
-            self.draw_unit_on(fit.FITNESS_PARAMETERS["TARGET"], scale=0.5))
+            self.draw_unit_on(canvas, scale=0.5))
 
         figure_distance_fitness = fit.figure_distance_fitness(self.figures)
 

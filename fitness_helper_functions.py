@@ -2,7 +2,7 @@
 import numpy as np
 from typing import List
 from collections import Counter
-from skimage import transform 
+from skimage import transform
 
 from figures import Figure, FigureType
 import geometry_helper_functions as geo
@@ -15,21 +15,22 @@ CENTER_POINT = np.asarray([constants.IMAGE_WIDTH/2, constants.IMAGE_HEIGHT/2])
 
 NO_SETUP_EXCEPTION = Exception("Call setup_fitness_parameters() first")
 
+PIXEL_NUM = constants.IMAGE_WIDTH * constants.IMAGE_HEIGHT
+
 FITNESS_PARAMETERS = {}
 
 
 def setup_fitness_parameters(
         target_image: np.array,
         background_color: np.array,
+        canvas: np.array,
         optimal_figures_number: int = 7):
     FITNESS_PARAMETERS["OPTIMAL_NUMBER_OF_FIGURES"] = optimal_figures_number
     FITNESS_PARAMETERS["TARGET"] = target_image
-    FITNESS_PARAMETERS["MAX_PIXEL_DIFFERENCE"] = get_max_pixel_difference(
-        target_image)
     FITNESS_PARAMETERS["CANVAS_COLOR"] = background_color
     FITNESS_PARAMETERS["MAX_BACKGROUND_CONTRAST"] = max(np.linalg.norm(background_color),
                                                         np.linalg.norm(np.invert(background_color)))
-
+    FITNESS_PARAMETERS["BG_APPROX"] = abs(np.sum(target_image - canvas))/(PIXEL_NUM*3)
 
 def color_difference(color1: np.array, color2: np.array) -> int:
     """Return contrast metric of two colors"""
@@ -79,7 +80,7 @@ def intersection_fitness(figures: List[Figure]) -> [float, float]:
     if max_intersections > 1:
         figure_intersection_fitness /= max_intersections
 
-    return min(figure_intersection_fitness,1)
+    return min(figure_intersection_fitness, 1)
 
 
 def contrast_fitness(figures: List[Figure]):
@@ -107,17 +108,13 @@ def get_max_pixel_difference(target: np.array):
 
 def approximation_fitness(rendered: np.array):
     """Return number [0;1]: rate of similarity between two raster images"""
-    if (not "TARGET" in FITNESS_PARAMETERS) or \
-            (not "MAX_PIXEL_DIFFERENCE" in FITNESS_PARAMETERS):
+    if (not "TARGET" in FITNESS_PARAMETERS):
         raise NO_SETUP_EXCEPTION
     target = FITNESS_PARAMETERS["TARGET"]
     target = transform.resize(target, rendered.shape, anti_aliasing=False)
-    max_pixel_difference = FITNESS_PARAMETERS["MAX_PIXEL_DIFFERENCE"]
-    # approx_fitness = 1 - np.sum(
-    # Unit.TARGET - self.draw_unit_on(Unit.TARGET)) / Unit.MAX_PIX_DIF
-    difference = target - rendered
-    metric = np.linalg.norm(difference)
-    metric /= max_pixel_difference
+    difference = abs(target - rendered)
+    metric = np.sum(difference)/(PIXEL_NUM * 3)
+    metric /= FITNESS_PARAMETERS["BG_APPROX"]
     return 1 - metric
 
 

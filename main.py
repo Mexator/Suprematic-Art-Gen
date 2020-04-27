@@ -31,7 +31,8 @@ BLANK_IMAGE = preprocessing.get_blank(
     preprocessing.get_dominant_color(TARGET_IMAGE))
 
 # Setup fitness function parameters
-fit.setup_fitness_parameters(TARGET_IMAGE, BLANK_IMAGE[0][0])
+fit.setup_fitness_parameters(TARGET_IMAGE, BLANK_IMAGE[0][0], BLANK_IMAGE, 
+optimal_figures_number=50)
 
 print("Input reading and preprocessing: Done in",
       time.time() - launch_time, "sec")
