@@ -36,7 +36,7 @@ BLANK_IMAGE = preprocessing.get_blank(
 
 # Setup fitness function parameters
 fit.setup_fitness_parameters(TARGET_IMAGE, BLANK_IMAGE[0][0], BLANK_IMAGE, 
-optimal_figures_number=10)
+optimal_figures_number=12)
 
 print("Input reading and preprocessing: Done in",
       time.time() - launch_time, "sec")

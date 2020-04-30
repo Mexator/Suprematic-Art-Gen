@@ -89,9 +89,10 @@ class Unit:
             # Change colors
             f = rand.randint(0, len(self.figures)-1)
             add = randint(0, 1)
+            comp = rand.randint(0,2)
             if add == 0:
                 add = -1
-            self.figures[f].data.color[:] += np.uint8(add * 10)
+            self.figures[f].data.color[comp] += np.uint8(add * 10)
         elif action == 4:
             # Move figure
             f = rand.randint(0, len(self.figures)-1)
@@ -167,12 +168,12 @@ class Unit:
         ]
         weights = [
             2,
-            1,
+            2,
             2,
             1,
-            2,
+            3,
             1,
-            2,
+            3,
             1
         ]
         weights = np.asarray(weights, dtype=np.float64)
