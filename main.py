@@ -2,6 +2,7 @@
 import random as rand
 import time
 from pathlib import Path
+import skimage
 
 from skimage import io, transform
 import matplotlib.pyplot as plt
@@ -88,6 +89,7 @@ print(BEST.fitness(verbose=True))
 DPI = 80
 drawn = BEST.draw_unit_on(BLANK_IMAGE, scale=2)
 drawn = transform.resize(drawn,(512,512), anti_aliasing=True)
+drawn = skimage.util.img_as_ubyte(drawn)
 
 plt.gcf().set_size_inches(2048/DPI, 1024/DPI)
 plt.subplot(1, 2, 1)

@@ -92,7 +92,8 @@ class Unit:
             comp = rand.randint(0,2)
             if add == 0:
                 add = -1
-            self.figures[f].data.color[comp] += np.uint8(add * 10)
+            self.figures[f].data.color[comp] += np.int8(add * 10)
+            self.figures[f].data.color[comp] = np.uint8(self.figures[f].data.color[comp])
         elif action == 4:
             # Move figure
             f = rand.randint(0, len(self.figures)-1)

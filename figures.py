@@ -105,7 +105,7 @@ class Circle(Figure):
     def draw(self, scale=1) -> np.ndarray:
         """Returns coordinates of circle that can be used for indexing image to
         fill part of it with color of figure"""
-        return draw.circle(self.data.center[1]*scale, self.data.center[0]*scale, self.data.radius*scale)
+        return draw.disk((self.data.center[1]*scale, self.data.center[0]*scale), self.data.radius*scale)
 
     def intersects(self, other: Figure) -> bool:
         """check 2 figures for intersection"""
